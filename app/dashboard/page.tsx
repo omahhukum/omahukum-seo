@@ -1,723 +1,914 @@
 'use client';
-import { useEffect, useState } from 'react';
+
+import { useState, useEffect } from 'react';
 import { supabase } from '../../utils/supabaseClient';
-import { useRouter } from 'next/navigation';
 
 interface Konsultasi {
-  id: string;
+  id: number;
   nama: string;
   email: string;
-  topik: string;
+  nomor_telepon: string;
   pesan: string;
-  balasan: string | null;
   created_at: string;
 }
 
 interface BukuTamu {
-  id: string;
+  id: number;
   nama: string;
   email: string;
+  nomor_telepon: string;
   pesan: string;
   created_at: string;
 }
 
 interface Review {
-  id: string;
+  id: number;
   nama: string;
+  email: string;
+  nomor_telepon: string;
   rating: number;
   komentar: string;
   created_at: string;
 }
 
-// Daftar kata kotor yang akan disensor
+// Tambahkan array kata-kata kotor di bagian atas file, setelah import
 const kataKotor = [
-  'anjing', 'anjg', 'anjgng', 'bangsat', 'bangsad', 'bangsattt', 'bajingan', 'baji', 'baji***',
-  'kontol', 'kntl', 'kontl', 'kontoll', 'memek', 'memk', 'mmk', 'meki', 'ngentot', 'ngentod',
-  'ngntot', 'ngentott', 'tolol', 'tll', 'tololl', 'bego', 'begoos', 'goblok', 'gblk', 'gblg',
-  'goblokk', 'asu', 'asw', 'asuu', 'babi', 'b4bi', 'bab1', 'jancok', 'jancuk', 'jancoek',
-  'jancog', 'jancoq', 'taik', 'tae', 'taek', 'tai', 'tahi', 'taey', 'brengsek', 'brngsk',
-  'brengsk', 'setan', 'iblis', 'keparat', 'cocot', 'monyet', 'nyet', 'kambing', 'sialan',
-  'bencong', 'banci', 'transeksual', 'pelacur', 'lonte', 'lontrong', 'pecun', 'perek',
-  'sundal', 'kampang', 'kimak', 'kim4k', 'pantek', 'puki', 'burit', 'titit', 'titid', 'tetek',
-  'tete', 'silit', 'biji', 'bijim', 'jembut', 'jembod', 'kacuk', 'itil', 'peju', 'pejuh',
-  'jilmek', 'colmek', 'bokep', 'bok*p', 'mlacur', 'ml4cur', 'ngeseng', 'mbedunduk', 'raimu',
-  'ndasmu', 'asemm', 'bajir', 'kentut', 'kentod', 'mlaku jancuk', 'cuki', 'cukimak', 'cukimai',
-  'cukimay', 'cuk', 'cukkk', 'pantat', 'idiot', 'gila', 'otak udang', 'otak dengkul', 'njing',
-  'jil', 'sarap', 'mampus', 'mati aja', 'meninggoy', 'maho', 'hombreng', 'kemplu', 'ngocok',
-  'ngewe', 'njotos', 'ndasmuk', 'kucing kampung', 'lemah otak', 'setres', 'copet', 'penipu',
-  'pemerkosa', 'pengentot', 'capres tolol', 'tikus berdasi', 'dasar miskin', 'torok', 'etel',
-  'teles', 'kimpet', 'jembot', 'jembi', 'guo garban', 'gua garban', 'selakangan', 'bodoh',
-  'kong kalikong', 'kongkalikong', 'gongpek', 'gong pek', 'gongpik', 'gong pik', 'tali bh',
-  'bh', 'kunam', 'iq jongok', 'dumb', 'stupid', 'fuck', 'tempek', 'tempik'
+  'anjing', 'bangsat', 'bajingan', 'kontol', 'memek', 'ngentot', 'pantek', 'pantat',
+  'pepek', 'puki', 'setan', 'sialan', 'sial', 'tolol', 'bego', 'goblok', 'babi',
+  'asu', 'bajing', 'jancok', 'jancuk',
+  'brengsek', 'kampret', 'tai', 'taik', 'peler', 'titit', 'kentot', 'kemem',
+  'ewe', 'ewek', 'kimak', 'lancap', 'bokep', 'bencong', 'banci', 'pelacur',
+  'lonte', 'cabul', 'bejat', 'ngesex', 'ngewe', 'sange', 'sangean', 'mesum',
+  'maho', 'homo', 'gay', 'lesbi', 'lesbian', 'porno', 'seks', 'seksual',
+  'zakar', 'penis', 'kelamin', 'kubul', 'coli', 'masturbasi',
+  'fuck', 'fucking', 'fucked', 'shit', 'bullshit', 'dick', 'pussy', 'cock',
+  'asshole', 'bastard', 'slut', 'whore', 'sundal', 'laknat', 'bangke',
+  'keparat', 'jebleh', 'ngaceng', 'tititmu', 'kontolmu', 'memekmu', 'pepekmu',
+  'bodoh', 'kamvret', 'pukimak', 'kntl', 'anjg', 'bgst', 'tae', 'taekk',
+  'kintil', 'memekk', 'jembot', 'jembut', 'mek sempit', 'meki', 'selakangan',
+  'selet', 'dubur', 'dobol', 'diamput', 'hancik dancik', 'mbokne hancuk',
+  'dancok', 'etel', 'itil', 'kimpet', 'kimvet', 'onani', 'ngocot', 'picek',
+  'matamu', 'mbokne han', 'bedes', 'garangan', 'sontoloyo', 'pejuh', 'peju',
+  'kancot', 'kutang', 'suwal', 'pentil', 'toket', 'tempek', 'ondolan',
+  'senok', 'germo', 'halet', 'nyen onyen', 'pokeh', 'palak', 'teles', 'cok',
+  'peli', 'kunam', 'bidak', 'iq jongkok', 'vagina', 'torok'
 ];
 
-// Fungsi untuk menyensor kata kotor
-function sensorKataKotor(text: string | null | undefined): string {
-  if (!text) return '';
-  console.log('Memfilter teks:', text);
+// Perbaiki fungsi sensor
+const sensorKataKotor = (text: string) => {
+  if (!text) return text;
   let result = text;
+  
+  // Fungsi untuk memeriksa apakah karakter adalah huruf
+  const isLetter = (char: string) => /[a-zA-Z]/.test(char);
+  
   kataKotor.forEach(kata => {
-    // Escape karakter khusus dalam regular expression
-    const escapedKata = kata.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const regex = new RegExp(escapedKata, 'gi');
-    const before = result;
-    result = result.replace(regex, '*'.repeat(kata.length));
-    if (before !== result) {
-      console.log(`Kata "${kata}" ditemukan dan disensor`);
-    }
+    // Buat regex yang lebih fleksibel untuk mencari kata kotor
+    const regex = new RegExp(`[a-zA-Z]*${kata}[a-zA-Z]*`, 'gi');
+    
+    result = result.replace(regex, match => {
+      // Temukan posisi kata kotor dalam match
+      const kataIndex = match.toLowerCase().indexOf(kata.toLowerCase());
+      if (kataIndex === -1) return match;
+      
+      // Ganti hanya bagian kata kotor dengan bintang
+      const beforeKata = match.slice(0, kataIndex);
+      const afterKata = match.slice(kataIndex + kata.length);
+      const stars = '*'.repeat(kata.length);
+      
+      return beforeKata + stars + afterKata;
+    });
   });
-  console.log('Hasil setelah filter:', result);
+  
   return result;
-}
+};
 
-export default function Dashboard() {
-  const [loading, setLoading] = useState(true);
+// Tambahkan fungsi sensorEmail setelah fungsi sensorKataKotor
+const sensorEmail = (email: string) => {
+  if (!email) return email;
+  
+  const [username, domain] = email.split('@');
+  const [domainName, tld] = domain.split('.');
+  
+  // Sensor username
+  const sensorUsername = username.charAt(0) + 
+    '*'.repeat(Math.max(0, username.length - 2)) + 
+    username.charAt(username.length - 1);
+  
+  // Sensor domain
+  const sensorDomain = domainName.charAt(0) + 
+    '*'.repeat(Math.max(0, domainName.length - 2)) + 
+    domainName.charAt(domainName.length - 1);
+  
+  return `${sensorUsername}@${sensorDomain}.${tld}`;
+};
+
+export default function DashboardAuth() {
+  const [isAdminMode, setIsAdminMode] = useState(false);
+  const [showLoginForm, setShowLoginForm] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
   const [konsultasi, setKonsultasi] = useState<Konsultasi[]>([]);
   const [bukuTamu, setBukuTamu] = useState<BukuTamu[]>([]);
   const [review, setReview] = useState<Review[]>([]);
-  const [isAdmin, setIsAdmin] = useState(false);
   const [activeTab, setActiveTab] = useState<'konsultasi' | 'bukuTamu' | 'review'>('konsultasi');
-  const [balasan, setBalasan] = useState<Record<string, string>>({});
-  const router = useRouter();
+  const [editingReview, setEditingReview] = useState<Review | null>(null);
+  const [editedKomentar, setEditedKomentar] = useState('');
+  const [editingBalasan, setEditingBalasan] = useState<string | null>(null);
+  const [editedBalasan, setEditedBalasan] = useState('');
+  const [editingItem, setEditingItem] = useState<{ type: string; data: any } | null>(null);
 
-  const toggleAdminMode = () => {
-    const newAdminState = !isAdmin;
-    setIsAdmin(newAdminState);
-    localStorage.setItem('isAdmin', String(newAdminState));
-  };
+  // Cek status admin dan muat data saat komponen dimuat
+  useEffect(() => {
+    checkAuth();
+  }, []);
 
-  const loadKonsultasiData = async () => {
+  const checkAuth = async () => {
     try {
-      const { data, error } = await supabase
-        .from('konsultasi')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error('Error saat memuat data konsultasi:', error);
-        return;
+      console.log('Checking auth...');
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError) {
+        console.error('Session error:', sessionError);
+        throw sessionError;
       }
 
-      if (data) {
-        const processedData = data.map(item => ({
-          ...item,
-          balasan: item.balasan || null
-        }));
-        setKonsultasi(processedData);
+      console.log('Session:', session);
+      
+      if (session?.user?.email === 'omahhukum.jatim@gmail.com') {
+        console.log('User is admin');
+        setIsAdminMode(true);
+      } else {
+        console.log('User is not admin');
+        setIsAdminMode(false);
       }
+      
+      // Fetch data regardless of admin status
+      await fetchData();
     } catch (err) {
-      console.error('Error saat memuat data:', err);
+      console.error('Error checking auth:', err);
+      setIsAdminMode(false);
+      // Still fetch data even if auth check fails
+      await fetchData();
+    } finally {
+      setLoading(false);
     }
   };
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        // Cek session dari localStorage
-        const sessionStr = localStorage.getItem('omah-hukum-auth');
-        if (!sessionStr) {
-          console.log('Tidak ada session, redirect ke login');
-          router.push('/login');
-          return;
-        }
-
-        const session = JSON.parse(sessionStr);
-        console.log('Session ditemukan:', session);
-
-        // Cek validitas session dengan Supabase
-        const { data: { user }, error } = await supabase.auth.getUser(session.access_token);
-        
-        if (error || !user) {
-          console.error('Error saat validasi session:', error);
-          localStorage.removeItem('omah-hukum-auth');
-          router.push('/login');
-          return;
-        }
-
-        console.log('User valid:', user);
-        
-        // Cek apakah user adalah admin
-        const isAdminUser = localStorage.getItem('isAdmin') === 'true';
-        setIsAdmin(isAdminUser);
-        
-        // Fetch data setelah autentikasi berhasil
-        const fetchData = async () => {
-          try {
-            const [konsultasiRes, bukuTamuRes, reviewRes] = await Promise.all([
-              supabase.from('konsultasi').select('*').order('created_at', { ascending: false }),
-              supabase.from('buku_tamu').select('*').order('created_at', { ascending: false }),
-              supabase.from('review').select('*').order('created_at', { ascending: false })
-            ]);
-
-            if (konsultasiRes.error) throw konsultasiRes.error;
-            if (bukuTamuRes.error) throw bukuTamuRes.error;
-            if (reviewRes.error) throw reviewRes.error;
-
-            // Log data review
-            console.log('Data Review:', reviewRes.data);
-
-            // Pastikan data konsultasi memiliki balasan yang benar
-            const konsultasiData = konsultasiRes.data?.map(item => ({
-              ...item,
-              balasan: item.balasan || null
-            })) || [];
-
-            setKonsultasi(konsultasiData);
-            setBukuTamu(bukuTamuRes.data || []);
-            setReview(reviewRes.data || []);
-            setLoading(false);
-          } catch (err) {
-            console.error('Error fetching data:', err);
-            setError('Terjadi kesalahan saat mengambil data.');
-          }
-        };
-
-        fetchData();
-      } catch (err) {
-        console.error('Terjadi kesalahan:', err);
-        setError('Terjadi kesalahan saat memeriksa autentikasi.');
-        localStorage.removeItem('omah-hukum-auth');
-        router.push('/login');
-      }
-    };
-
-    checkAuth();
-  }, [router]);
-
-  const handleDelete = async (table: string, id: string) => {
-    if (!isAdmin) return;
-    
+  const fetchData = async () => {
     try {
+      console.log('Fetching data...');
+      
+      const [konsultasiRes, bukuTamuRes, reviewRes] = await Promise.all([
+        supabase.from('konsultasi').select('*').order('created_at', { ascending: false }),
+        supabase.from('buku_tamu').select('*').order('created_at', { ascending: false }),
+        supabase.from('review').select('*').order('created_at', { ascending: false })
+      ]);
+
+      if (konsultasiRes.error) {
+        console.error('Error konsultasi:', konsultasiRes.error);
+        throw konsultasiRes.error;
+      }
+      if (bukuTamuRes.error) {
+        console.error('Error buku tamu:', bukuTamuRes.error);
+        throw bukuTamuRes.error;
+      }
+      if (reviewRes.error) {
+        console.error('Error review:', reviewRes.error);
+        throw reviewRes.error;
+      }
+
+      console.log('Data berhasil dimuat:', {
+        konsultasi: konsultasiRes.data?.length,
+        bukuTamu: bukuTamuRes.data?.length,
+        review: reviewRes.data?.length
+      });
+
+      setKonsultasi(konsultasiRes.data || []);
+      setBukuTamu(bukuTamuRes.data || []);
+      setReview(reviewRes.data || []);
+    } catch (err) {
+      console.error('Error fetching data:', err);
+      setError('Terjadi kesalahan saat mengambil data.');
+    }
+  };
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    console.log('Login attempt:', { email, password });
+
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        console.error('Login error:', error);
+        throw error;
+      }
+
+      console.log('Login response:', data);
+
+      if (data.user?.email === 'omahhukum.jatim@gmail.com') {
+        console.log('Login successful, user is admin');
+        setIsAdminMode(true);
+        setShowLoginForm(false);
+        await fetchData();
+      } else {
+        console.log('Login successful but user is not admin');
+        setError('Anda tidak memiliki akses admin');
+        await supabase.auth.signOut();
+      }
+    } catch (err: any) {
+      console.error('Login error:', err);
+      setError(err.message);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      console.log('Logging out...');
+      await supabase.auth.signOut();
+      setIsAdminMode(false);
+    } catch (err) {
+      console.error('Error during logout:', err);
+    }
+  };
+
+  const handleEditReview = (review: Review) => {
+    console.log('Editing review:', review);
+    setEditingReview(review);
+    setEditedKomentar(review.komentar || '');
+  };
+
+  const handleSaveEdit = async (reviewId: number) => {
+    try {
+      console.log('Menyimpan review:', { id: reviewId, komentar: editedKomentar });
+      
+      if (!editedKomentar.trim()) {
+        setError('Komentar tidak boleh kosong');
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('review')
+        .update({ 
+          komentar: editedKomentar,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', reviewId)
+        .select();
+
+      if (error) {
+        console.error('Error saat menyimpan review:', error);
+        throw error;
+      }
+
+      console.log('Response dari Supabase:', data);
+
+      // Update state lokal
+      setReview(prevReview => 
+        prevReview.map(item => 
+          item.id === reviewId ? { ...item, komentar: editedKomentar } : item
+        )
+      );
+
+      setEditingReview(null);
+      setEditedKomentar('');
+      console.log('Review berhasil disimpan');
+    } catch (err) {
+      console.error('Error updating review:', err);
+      setError('Gagal menyimpan perubahan. Silakan coba lagi.');
+    }
+  };
+
+  const handleDeleteReview = async (reviewId: number) => {
+    if (!confirm('Apakah Anda yakin ingin menghapus review ini?')) return;
+
+    try {
+      // Cek autentikasi Supabase
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        console.error('Tidak ada sesi autentikasi');
+        setError('Anda harus login terlebih dahulu');
+        return;
+      }
+
+      const { error } = await supabase
+        .from('review')
+        .delete()
+        .eq('id', reviewId);
+
+      if (error) throw error;
+
+      // Muat ulang data setelah berhasil menghapus
+      await fetchData();
+    } catch (err) {
+      console.error('Error deleting review:', err);
+      setError('Gagal menghapus review');
+    }
+  };
+
+  const handleEditBalasan = (id: number) => {
+    const konsultasiItem = konsultasi.find(item => item.id === id);
+    if (konsultasiItem) {
+      setEditingBalasan(id.toString());
+      setEditedBalasan(konsultasiItem.pesan || '');
+    }
+  };
+
+  const handleSaveBalasan = async (id: number) => {
+    try {
+      console.log('Menyimpan balasan:', { id, balasan: editedBalasan });
+      
+      if (!editedBalasan.trim()) {
+        setError('Balasan tidak boleh kosong');
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('konsultasi')
+        .update({ 
+          pesan: editedBalasan,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', id);
+
+      if (error) {
+        console.error('Error saat menyimpan balasan:', error);
+        throw error;
+      }
+
+      // Update state lokal
+      setKonsultasi(prevKonsultasi => 
+        prevKonsultasi.map(item => 
+          item.id === id ? { ...item, pesan: editedBalasan } : item
+        )
+      );
+
+      setEditingBalasan(null);
+      setEditedBalasan('');
+      console.log('Balasan berhasil disimpan');
+    } catch (err) {
+      console.error('Error updating balasan:', err);
+      setError('Gagal menyimpan balasan. Silakan coba lagi.');
+    }
+  };
+
+  const handleDelete = async (table: 'konsultasi' | 'buku_tamu' | 'review', id: number) => {
+    if (!confirm('Apakah Anda yakin ingin menghapus data ini?')) return;
+
+    try {
+      console.log('Menghapus data:', { table, id });
       const { error } = await supabase
         .from(table)
         .delete()
         .eq('id', id);
 
-      if (error) throw error;
-
-      // Update state setelah penghapusan
-      if (table === 'konsultasi') {
-        setKonsultasi(konsultasi.filter(item => item.id !== id));
-      } else if (table === 'buku_tamu') {
-        setBukuTamu(bukuTamu.filter(item => item.id !== id));
-      } else if (table === 'review') {
-        setReview(review.filter(item => item.id !== id));
+      if (error) {
+        console.error('Error saat menghapus data:', error);
+        throw error;
       }
+
+      console.log('Data berhasil dihapus');
+      await fetchData(); // Muat ulang data setelah menghapus
     } catch (err) {
       console.error('Error deleting data:', err);
-      setError('Terjadi kesalahan saat menghapus data.');
+      setError('Gagal menghapus data');
     }
   };
 
-  const handleBalasan = async (id: string, balasanText: string) => {
-    if (!isAdmin) {
-      setError('Anda harus dalam mode admin untuk menambahkan balasan');
-      return;
+  const maskEmail = (email: string) => {
+    if (!isAdminMode) {
+      const [username, domain] = email.split('@');
+      const maskedUsername = username.charAt(0) + '*'.repeat(username.length - 2) + username.charAt(username.length - 1);
+      return `${maskedUsername}@${domain}`;
     }
-
-    if (!balasanText.trim()) {
-      setError('Balasan tidak boleh kosong');
-      return;
-    }
-
-    try {
-      // Update data di Supabase
-      const { data, error } = await supabase
-        .from('konsultasi')
-        .update({ balasan: balasanText })
-        .eq('id', id);
-
-      if (error) {
-        console.error('Error dari Supabase:', error);
-        setError('Gagal mengirim balasan. Pastikan Anda memiliki akses admin.');
-        return;
-      }
-
-      // Update state setelah menambahkan balasan
-      setKonsultasi(konsultasi.map(item => 
-        item.id === id ? { ...item, balasan: balasanText } : item
-      ));
-      setBalasan({ ...balasan, [id]: '' });
-      setError('');
-    } catch (err) {
-      console.error('Error saat menambahkan balasan:', err);
-      setError('Terjadi kesalahan. Silakan coba lagi.');
-    }
+    return email;
   };
 
-  const handleEditBalasan = async (id: string) => {
-    if (!isAdmin) {
-      setError('Anda harus dalam mode admin untuk mengedit balasan');
-      return;
-    }
-
-    const konsultasiItem = konsultasi.find(item => item.id === id);
-    if (!konsultasiItem) return;
-
-    // Set balasan ke state untuk diedit
-    setBalasan({ ...balasan, [id]: konsultasiItem.balasan || '' });
-  };
-
-  const handleSimpanBalasan = async (id: string, balasanText: string) => {
-    if (!isAdmin) {
-      setError('Anda harus dalam mode admin untuk menyimpan balasan');
-      return;
-    }
-
-    if (!balasanText.trim()) {
-      setError('Balasan tidak boleh kosong');
-      return;
-    }
-
-    try {
-      console.log('=== Mencoba menyimpan balasan ===');
-      console.log('ID:', id);
-      console.log('Tipe ID:', typeof id);
-      console.log('Isi balasan:', balasanText);
-
-      // Cek data sebelum update
-      const { data: existingData, error: fetchError } = await supabase
-        .from('konsultasi')
-        .select('*')
-        .eq('id', id)
-        .single();
-
-      if (fetchError) {
-        console.error('Error saat memeriksa data:', fetchError);
-        setError('Gagal memeriksa data konsultasi');
-        return;
-      }
-
-      if (!existingData) {
-        console.error('Data tidak ditemukan untuk ID:', id);
-        setError('Data konsultasi tidak ditemukan');
-        return;
-      }
-
-      console.log('Data yang akan diupdate:', existingData);
-
-      // Update data menggunakan RPC
-      const { data, error } = await supabase.rpc('update_konsultasi_balasan', {
-        konsultasi_id: id,
-        new_balasan: balasanText
-      });
-
-      if (error) {
-        console.error('Error dari Supabase RPC:', error);
-        setError('Gagal menyimpan balasan: ' + error.message);
-        return;
-      }
-
-      console.log('Hasil RPC:', data);
-
-      // Verifikasi data setelah update
-      const { data: updatedData, error: verifyError } = await supabase
-        .from('konsultasi')
-        .select('*')
-        .eq('id', id)
-        .single();
-
-      if (verifyError) {
-        console.error('Error saat verifikasi data:', verifyError);
-        setError('Gagal memverifikasi data konsultasi');
-        return;
-      }
-
-      if (!updatedData) {
-        console.error('Data tidak ditemukan setelah update');
-        setError('Gagal memverifikasi data konsultasi');
-        return;
-      }
-
-      console.log('Data setelah update:', updatedData);
-
-      // Update state lokal
-      setKonsultasi(prevKonsultasi => 
-        prevKonsultasi.map(item => 
-          item.id === id ? { ...item, balasan: balasanText } : item
-        )
+  const renderData = () => {
+    if (loading) {
+      return (
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-900"></div>
+        </div>
       );
-      
-      // Reset state balasan
-      setBalasan(prev => {
-        const newBalasan = { ...prev };
-        delete newBalasan[id];
-        return newBalasan;
-      });
-      
-      setError('');
-      console.log('=== Balasan berhasil disimpan ===');
-    } catch (err) {
-      console.error('Error saat menyimpan balasan:', err);
-      setError('Terjadi kesalahan. Silakan coba lagi.');
-    }
-  };
-
-  const handleHapusBalasan = async (id: string) => {
-    if (!isAdmin) {
-      setError('Anda harus dalam mode admin untuk menghapus balasan');
-      return;
     }
 
-    if (!confirm('Apakah Anda yakin ingin menghapus balasan ini?')) return;
+    return (
+      <div className="space-y-8">
+        {/* Konsultasi Section */}
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+          <div className="px-6 py-4 border-b border-slate-200">
+            <h2 className="text-xl font-semibold text-slate-900">Konsultasi ({konsultasi.length})</h2>
+          </div>
+          <div className="divide-y divide-slate-200">
+            {konsultasi.map((item) => (
+              <div key={item.id} className="p-6 hover:bg-slate-50 transition-colors">
+                <div className="flex justify-between items-start">
+                  <div className="space-y-2">
+                    <p className="text-slate-900 font-medium">{item.nama}</p>
+                    <p className="text-slate-600 text-sm">{maskEmail(item.email)}</p>
+                    <p className="text-slate-600 text-sm">{item.nomor_telepon}</p>
+                    <p className="text-slate-700 mt-2">{item.pesan}</p>
+                  </div>
+                  {isAdminMode && (
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => {
+                          setEditingItem({ type: 'konsultasi', data: item });
+                        }}
+                        className="text-blue-600 hover:text-blue-800"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDelete('konsultasi', item.id)}
+                        className="text-red-600 hover:text-red-800"
+                      >
+                        Hapus
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
 
-    try {
-      console.log('=== Mencoba menghapus balasan ===');
-      console.log('ID:', id);
-      console.log('Tipe ID:', typeof id);
+        {/* Buku Tamu Section */}
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+          <div className="px-6 py-4 border-b border-slate-200">
+            <h2 className="text-xl font-semibold text-slate-900">Buku Tamu ({bukuTamu.length})</h2>
+          </div>
+          <div className="divide-y divide-slate-200">
+            {bukuTamu.map((item) => (
+              <div key={item.id} className="p-6 hover:bg-slate-50 transition-colors">
+                <div className="flex justify-between items-start">
+                  <div className="space-y-2">
+                    <p className="text-slate-900 font-medium">{item.nama}</p>
+                    <p className="text-slate-600 text-sm">{maskEmail(item.email)}</p>
+                    <p className="text-slate-600 text-sm">{item.nomor_telepon}</p>
+                    <p className="text-slate-700 mt-2">{item.pesan}</p>
+                  </div>
+                  {isAdminMode && (
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => {
+                          setEditingItem({ type: 'buku_tamu', data: item });
+                        }}
+                        className="text-blue-600 hover:text-blue-800"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDelete('buku_tamu', item.id)}
+                        className="text-red-600 hover:text-red-800"
+                      >
+                        Hapus
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
 
-      // Cek data sebelum update
-      const { data: existingData, error: fetchError } = await supabase
-        .from('konsultasi')
-        .select('*')
-        .eq('id', id)
-        .single();
-
-      if (fetchError) {
-        console.error('Error saat memeriksa data:', fetchError);
-        setError('Gagal memeriksa data konsultasi');
-        return;
-      }
-
-      if (!existingData) {
-        console.error('Data tidak ditemukan untuk ID:', id);
-        setError('Data konsultasi tidak ditemukan');
-        return;
-      }
-
-      console.log('Data yang akan diupdate:', existingData);
-
-      // Update data menggunakan RPC
-      const { data, error } = await supabase.rpc('update_konsultasi_balasan', {
-        konsultasi_id: id,
-        new_balasan: null
-      });
-
-      if (error) {
-        console.error('Error dari Supabase RPC:', error);
-        setError('Gagal menghapus balasan: ' + error.message);
-        return;
-      }
-
-      console.log('Hasil RPC:', data);
-
-      // Verifikasi data setelah update
-      const { data: updatedData, error: verifyError } = await supabase
-        .from('konsultasi')
-        .select('*')
-        .eq('id', id)
-        .single();
-
-      if (verifyError) {
-        console.error('Error saat verifikasi data:', verifyError);
-        setError('Gagal memverifikasi data konsultasi');
-        return;
-      }
-
-      if (!updatedData) {
-        console.error('Data tidak ditemukan setelah update');
-        setError('Gagal memverifikasi data konsultasi');
-        return;
-      }
-
-      console.log('Data setelah update:', updatedData);
-
-      // Update state lokal
-      setKonsultasi(prevKonsultasi => 
-        prevKonsultasi.map(item => 
-          item.id === id ? { ...item, balasan: null } : item
-        )
-      );
-      
-      setError('');
-      console.log('=== Balasan berhasil dihapus ===');
-    } catch (err) {
-      console.error('Error saat menghapus balasan:', err);
-      setError('Terjadi kesalahan. Silakan coba lagi.');
-    }
+        {/* Review Section */}
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+          <div className="px-6 py-4 border-b border-slate-200">
+            <h2 className="text-xl font-semibold text-slate-900">Review ({review.length})</h2>
+          </div>
+          <div className="divide-y divide-slate-200">
+            {review.map((item) => (
+              <div key={item.id} className="p-6 hover:bg-slate-50 transition-colors">
+                <div className="flex justify-between items-start">
+                  <div className="space-y-2">
+                    <p className="text-slate-900 font-medium">{item.nama}</p>
+                    <p className="text-slate-600 text-sm">{maskEmail(item.email)}</p>
+                    <p className="text-slate-600 text-sm">{item.nomor_telepon}</p>
+                    <div className="flex items-center space-x-1">
+                      {[...Array(5)].map((_, i) => (
+                        <svg
+                          key={i}
+                          className={`w-4 h-4 ${
+                            i < item.rating ? 'text-yellow-400' : 'text-gray-300'
+                          }`}
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                        </svg>
+                      ))}
+                    </div>
+                    <p className="text-slate-700 mt-2">{item.komentar}</p>
+                  </div>
+                  {isAdminMode && (
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => handleEditReview(item)}
+                        className="text-blue-600 hover:text-blue-800"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDeleteReview(item.id)}
+                        className="text-red-600 hover:text-red-800"
+                      >
+                        Hapus
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
   };
 
   if (loading) {
     return (
-      <main className="max-w-7xl mx-auto py-12 px-4">
+      <div className="bg-white p-6 rounded-lg shadow">
         <div className="text-center">Loading...</div>
-      </main>
-    );
-  }
-
-  if (error) {
-    return (
-      <main className="max-w-7xl mx-auto py-12 px-4">
-        <div className="text-red-600">{error}</div>
-      </main>
+      </div>
     );
   }
 
   return (
-    <main className="max-w-7xl mx-auto py-12 px-4">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Dashboard</h1>
-        <button
-          onClick={toggleAdminMode}
-          className={`px-4 py-2 rounded ${
-            isAdmin ? 'bg-red-600 text-white' : 'bg-gray-200 text-gray-700'
-          }`}
-        >
-          {isAdmin ? 'Mode Admin Aktif' : 'Aktifkan Mode Admin'}
-        </button>
-      </div>
-      
-      <div className="mb-6">
-        <div className="flex space-x-4">
-          <button
-            className={`px-4 py-2 rounded ${
-              activeTab === 'konsultasi'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-200 text-gray-700'
-            }`}
-            onClick={() => setActiveTab('konsultasi')}
-          >
-            Konsultasi ({konsultasi.length})
-          </button>
-          <button
-            className={`px-4 py-2 rounded ${
-              activeTab === 'bukuTamu'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-200 text-gray-700'
-            }`}
-            onClick={() => setActiveTab('bukuTamu')}
-          >
-            Buku Tamu ({bukuTamu.length})
-          </button>
-          <button
-            className={`px-4 py-2 rounded ${
-              activeTab === 'review'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-200 text-gray-700'
-            }`}
-            onClick={() => setActiveTab('review')}
-          >
-            Review ({review.length})
-          </button>
-        </div>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+          {/* Header Section */}
+          <div className="bg-gradient-to-r from-blue-900 to-blue-800 px-6 py-4">
+            <div className="flex justify-between items-center">
+              <div>
+                <h1 className="text-2xl font-bold text-white">Dashboard</h1>
+                <p className="text-blue-100 text-sm mt-1">Lihat data konsultasi, buku tamu, dan review</p>
+              </div>
+              {!isAdminMode && !showLoginForm && (
+                <button
+                  onClick={() => {
+                    console.log('Admin mode button clicked');
+                    setShowLoginForm(true);
+                  }}
+                  className="bg-white text-blue-900 px-6 py-2 rounded-lg hover:bg-blue-50 transition-all duration-200 shadow-lg font-medium"
+                >
+                  Login Admin
+                </button>
+              )}
+              {isAdminMode && (
+                <button
+                  onClick={handleLogout}
+                  className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-all duration-200 shadow-lg font-medium"
+                >
+                  Keluar Mode Admin
+                </button>
+              )}
+            </div>
+          </div>
 
-      {activeTab === 'konsultasi' && (
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-lg font-semibold mb-4">Daftar Konsultasi Terbaru</h2>
-          <div className="overflow-x-auto">
-            <table className="min-w-full">
-              <thead>
-                <tr className="bg-gray-50">
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Topik</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pesan</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
-                  {isAdmin && <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>}
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {konsultasi.map((item) => (
-                  <tr key={item.id}>
-                    <td className="px-6 py-4 whitespace-nowrap">{sensorKataKotor(item.nama)}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">{item.email}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">{item.topik}</td>
-                    <td className="px-6 py-4">
-                      <div className="mb-2 text-justify whitespace-pre-wrap">{sensorKataKotor(item.pesan)}</div>
-                      {item.balasan ? (
-                        <div className="bg-blue-50 p-2 rounded">
-                          <div className="flex justify-between items-start">
-                            <div className="text-justify whitespace-pre-wrap">
-                              <strong>Balasan:</strong> {item.balasan}
+          {/* Login Form */}
+          {showLoginForm && (
+            <div className="p-8 bg-gradient-to-br from-slate-50 to-white border-b border-slate-200">
+              <div className="max-w-md mx-auto bg-white rounded-xl shadow-lg p-6 border border-slate-200">
+                <h2 className="text-xl font-semibold text-slate-800 mb-6">Login Admin</h2>
+                <form onSubmit={handleLogin} className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                      required
+                      placeholder="Masukkan email"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Password</label>
+                    <input
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                      required
+                      placeholder="Masukkan password"
+                    />
+                  </div>
+                  {error && <p className="text-red-600 text-sm bg-red-50 p-2 rounded-lg">{error}</p>}
+                  <div className="flex space-x-3 pt-2">
+                    <button
+                      type="submit"
+                      className="flex-1 bg-blue-900 text-white px-6 py-2 rounded-lg hover:bg-blue-800 transition-all duration-200 shadow-md font-medium"
+                    >
+                      Login
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowLoginForm(false);
+                        setEmail('');
+                        setPassword('');
+                        setError('');
+                      }}
+                      className="flex-1 bg-slate-200 text-slate-700 px-6 py-2 rounded-lg hover:bg-slate-300 transition-all duration-200 shadow-md font-medium"
+                    >
+                      Batal
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* Main Content */}
+          <div className="p-6">
+            {/* Tab Navigation */}
+            <div className="mb-6">
+              <div className="flex space-x-4">
+                <button
+                  className={`px-6 py-3 rounded-lg transition-all duration-200 shadow-md font-medium ${
+                    activeTab === 'konsultasi'
+                      ? 'bg-blue-900 text-white'
+                      : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                  }`}
+                  onClick={() => setActiveTab('konsultasi')}
+                >
+                  Konsultasi ({konsultasi.length})
+                </button>
+                <button
+                  className={`px-6 py-3 rounded-lg transition-all duration-200 shadow-md font-medium ${
+                    activeTab === 'bukuTamu'
+                      ? 'bg-blue-900 text-white'
+                      : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                  }`}
+                  onClick={() => setActiveTab('bukuTamu')}
+                >
+                  Buku Tamu ({bukuTamu.length})
+                </button>
+                <button
+                  className={`px-6 py-3 rounded-lg transition-all duration-200 shadow-md font-medium ${
+                    activeTab === 'review'
+                      ? 'bg-blue-900 text-white'
+                      : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                  }`}
+                  onClick={() => setActiveTab('review')}
+                >
+                  Review ({review.length})
+                </button>
+              </div>
+            </div>
+
+            {/* Tables */}
+            {activeTab === 'konsultasi' && (
+              <div className="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-slate-200">
+                    <thead className="bg-slate-50">
+                      <tr>
+                        <th className="px-4 py-3 text-center text-xs font-semibold text-slate-600 uppercase tracking-wider w-[2%] border-r border-slate-200">No</th>
+                        <th className="px-4 py-3 text-center text-xs font-semibold text-slate-600 uppercase tracking-wider w-[8%] border-r border-slate-200">Nama</th>
+                        <th className="px-4 py-3 text-center text-xs font-semibold text-slate-600 uppercase tracking-wider w-[10%] border-r border-slate-200">Email</th>
+                        <th className="px-4 py-3 text-center text-xs font-semibold text-slate-600 uppercase tracking-wider w-[25%] border-r border-slate-200">Pesan</th>
+                        <th className="px-4 py-3 text-center text-xs font-semibold text-slate-600 uppercase tracking-wider w-[25%] border-r border-slate-200">Balasan</th>
+                        <th className="px-4 py-3 text-center text-xs font-semibold text-slate-600 uppercase tracking-wider w-[8%] border-r border-slate-200">Tanggal</th>
+                        {isAdminMode && <th className="px-4 py-3 text-center text-xs font-semibold text-slate-600 uppercase tracking-wider w-[2%] border-r border-slate-200">Aksi</th>}
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-slate-200">
+                      {konsultasi.map((item, index) => (
+                        <tr key={item.id} className="hover:bg-slate-50 transition-colors duration-150">
+                          <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-600 border-r border-slate-200 text-center">{index + 1}</td>
+                          <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-600 border-r border-slate-200 text-center">{sensorKataKotor(item.nama)}</td>
+                          <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-600 border-r border-slate-200 text-center">
+                            {isAdminMode ? item.email : sensorEmail(item.email)}
+                          </td>
+                          <td className="px-4 py-3 border-r border-slate-200">
+                            <div className="text-sm text-slate-600 text-center whitespace-pre-wrap max-h-24 overflow-y-auto">
+                              {sensorKataKotor(item.pesan)}
                             </div>
-                            {isAdmin && (
-                              <div className="flex space-x-2">
-                                <button
-                                  className="text-blue-600 hover:text-blue-800"
-                                  onClick={() => handleEditBalasan(item.id)}
-                                >
-                                  Edit
-                                </button>
-                                <button
-                                  className="text-red-600 hover:text-red-800"
-                                  onClick={() => handleHapusBalasan(item.id)}
-                                >
-                                  Hapus
-                                </button>
+                          </td>
+                          <td className="px-4 py-3 border-r border-slate-200">
+                            {editingBalasan === item.id.toString() ? (
+                              <div className="space-y-2">
+                                <textarea
+                                  value={editedBalasan}
+                                  onChange={(e) => setEditedBalasan(e.target.value)}
+                                  className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm"
+                                  rows={2}
+                                  placeholder="Tulis balasan..."
+                                />
+                                <div className="flex justify-center space-x-2">
+                                  <button
+                                    onClick={() => handleSaveBalasan(item.id)}
+                                    className="bg-blue-900 text-white px-4 py-1.5 rounded-lg hover:bg-blue-800 transition-all duration-200 text-sm font-medium"
+                                  >
+                                    Kirim
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      setEditingBalasan(null);
+                                      setEditedBalasan('');
+                                    }}
+                                    className="bg-slate-200 text-slate-700 px-4 py-1.5 rounded-lg hover:bg-slate-300 transition-all duration-200 text-sm font-medium"
+                                  >
+                                    Batal
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="space-y-2">
+                                <div className="text-sm text-slate-600 text-center whitespace-pre-wrap max-h-24 overflow-y-auto">
+                                  {sensorKataKotor(item.pesan || 'Belum ada balasan')}
+                                </div>
+                                {isAdminMode && (
+                                  <div className="text-center">
+                                    <button
+                                      onClick={() => handleEditBalasan(item.id)}
+                                      className="text-blue-900 hover:text-blue-800 text-sm font-medium"
+                                    >
+                                      {item.pesan ? 'Edit' : 'Tambah'}
+                                    </button>
+                                  </div>
+                                )}
                               </div>
                             )}
-                          </div>
-                          {isAdmin && balasan[item.id] !== undefined && (
-                            <div className="mt-2">
-                              <textarea
-                                className="w-full border rounded p-2 text-justify"
-                                value={balasan[item.id] || ''}
-                                onChange={(e) => setBalasan({ ...balasan, [item.id]: e.target.value })}
-                                placeholder="Edit balasan..."
-                              />
-                              <div className="flex space-x-2 mt-2">
-                                <button
-                                  className="bg-blue-600 text-white px-4 py-2 rounded"
-                                  onClick={() => handleSimpanBalasan(item.id, balasan[item.id] || '')}
-                                >
-                                  Simpan
-                                </button>
-                                <button
-                                  className="bg-gray-600 text-white px-4 py-2 rounded"
-                                  onClick={() => {
-                                    const newBalasan = { ...balasan };
-                                    delete newBalasan[item.id];
-                                    setBalasan(newBalasan);
-                                  }}
-                                >
-                                  Batal
-                                </button>
-                              </div>
-                            </div>
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-600 border-r border-slate-200 text-center">{new Date(item.created_at).toLocaleDateString()}</td>
+                          {isAdminMode && (
+                            <td className="px-4 py-3 whitespace-nowrap border-r border-slate-200 text-center">
+                              <button
+                                onClick={() => handleDelete('konsultasi', item.id)}
+                                className="text-red-600 hover:text-red-800 text-sm font-medium"
+                              >
+                                Hapus
+                              </button>
+                            </td>
                           )}
-                        </div>
-                      ) : (
-                        isAdmin && (
-                          <div className="mt-2">
-                            <textarea
-                              className="w-full border rounded p-2 text-justify"
-                              value={balasan[item.id] || ''}
-                              onChange={(e) => setBalasan({ ...balasan, [item.id]: e.target.value })}
-                              placeholder="Tulis balasan..."
-                            />
-                            <button
-                              className="mt-2 bg-blue-600 text-white px-4 py-2 rounded"
-                              onClick={() => handleSimpanBalasan(item.id, balasan[item.id] || '')}
-                            >
-                              Kirim Balasan
-                            </button>
-                          </div>
-                        )
-                      )}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">{new Date(item.created_at).toLocaleDateString()}</td>
-                    {isAdmin && (
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <button
-                          className="text-red-600 hover:text-red-800"
-                          onClick={() => handleDelete('konsultasi', item.id)}
-                        >
-                          Hapus
-                        </button>
-                      </td>
-                    )}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
 
-      {activeTab === 'bukuTamu' && (
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-lg font-semibold mb-4">Daftar Buku Tamu Terbaru</h2>
-          <div className="overflow-x-auto">
-            <table className="min-w-full">
-              <thead>
-                <tr className="bg-gray-50">
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pesan</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
-                  {isAdmin && <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>}
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {bukuTamu.map((item) => (
-                  <tr key={item.id}>
-                    <td className="px-6 py-4 whitespace-nowrap">{sensorKataKotor(item.nama)}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">{item.email}</td>
-                    <td className="px-6 py-4">{sensorKataKotor(item.pesan)}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">{new Date(item.created_at).toLocaleDateString()}</td>
-                    {isAdmin && (
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <button
-                          className="text-red-600 hover:text-red-800"
-                          onClick={() => handleDelete('buku_tamu', item.id)}
-                        >
-                          Hapus
-                        </button>
-                      </td>
-                    )}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+            {activeTab === 'bukuTamu' && (
+              <div className="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-slate-200">
+                    <thead className="bg-slate-50">
+                      <tr>
+                        <th className="px-4 py-3 text-center text-xs font-semibold text-slate-600 uppercase tracking-wider w-[2%] border-r border-slate-200">No</th>
+                        <th className="px-4 py-3 text-center text-xs font-semibold text-slate-600 uppercase tracking-wider w-[8%] border-r border-slate-200">Nama</th>
+                        <th className="px-4 py-3 text-center text-xs font-semibold text-slate-600 uppercase tracking-wider w-[10%] border-r border-slate-200">Email</th>
+                        <th className="px-4 py-3 text-center text-xs font-semibold text-slate-600 uppercase tracking-wider w-[60%] border-r border-slate-200">Pesan</th>
+                        <th className="px-4 py-3 text-center text-xs font-semibold text-slate-600 uppercase tracking-wider w-[8%] border-r border-slate-200">Tanggal</th>
+                        {isAdminMode && <th className="px-4 py-3 text-center text-xs font-semibold text-slate-600 uppercase tracking-wider w-[2%] border-r border-slate-200">Aksi</th>}
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-slate-200">
+                      {bukuTamu.map((item, index) => (
+                        <tr key={item.id} className="hover:bg-slate-50 transition-colors duration-150">
+                          <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-600 border-r border-slate-200 text-center">{index + 1}</td>
+                          <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-600 border-r border-slate-200 text-center">{sensorKataKotor(item.nama)}</td>
+                          <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-600 border-r border-slate-200 text-center">
+                            {isAdminMode ? item.email : sensorEmail(item.email)}
+                          </td>
+                          <td className="px-4 py-3 border-r border-slate-200">
+                            <div className="text-sm text-slate-600 text-center whitespace-pre-wrap max-h-24 overflow-y-auto">
+                              {sensorKataKotor(item.pesan)}
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-600 border-r border-slate-200 text-center">{new Date(item.created_at).toLocaleDateString()}</td>
+                          {isAdminMode && (
+                            <td className="px-4 py-3 whitespace-nowrap border-r border-slate-200 text-center">
+                              <button
+                                onClick={() => handleDelete('buku_tamu', item.id)}
+                                className="text-red-600 hover:text-red-800 text-sm font-medium"
+                              >
+                                Hapus
+                              </button>
+                            </td>
+                          )}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
 
-      {activeTab === 'review' && (
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-lg font-semibold mb-4">Daftar Review Terbaru</h2>
-          <div className="overflow-x-auto">
-            <table className="min-w-full">
-              <thead>
-                <tr className="bg-gray-50">
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rating</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pesan</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
-                  {isAdmin && <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>}
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {review.map((item) => {
-                  console.log('Review Item:', item); // Log setiap item review
-                  const filteredKomentar = sensorKataKotor(item.komentar);
-                  console.log('Komentar sebelum filter:', item.komentar);
-                  console.log('Komentar setelah filter:', filteredKomentar);
-                  return (
-                    <tr key={item.id}>
-                      <td className="px-6 py-4 whitespace-nowrap">{sensorKataKotor(item.nama)}</td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex">
-                          {[...Array(5)].map((_, i) => (
-                            <svg
-                              key={i}
-                              className={`w-5 h-5 ${
-                                i < item.rating ? 'text-yellow-400' : 'text-gray-300'
-                              }`}
-                              fill="currentColor"
-                              viewBox="0 0 20 20"
-                            >
-                              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                            </svg>
-                          ))}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="text-justify whitespace-pre-wrap">
-                          {filteredKomentar || 'Tidak ada pesan'}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">{new Date(item.created_at).toLocaleDateString()}</td>
-                      {isAdmin && (
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <button
-                            className="text-red-600 hover:text-red-800"
-                            onClick={() => handleDelete('review', item.id)}
-                          >
-                            Hapus
-                          </button>
-                        </td>
-                      )}
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+            {activeTab === 'review' && (
+              <div className="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-slate-200">
+                    <thead className="bg-slate-50">
+                      <tr>
+                        <th className="px-4 py-3 text-center text-xs font-semibold text-slate-600 uppercase tracking-wider w-[2%] border-r border-slate-200">No</th>
+                        <th className="px-4 py-3 text-center text-xs font-semibold text-slate-600 uppercase tracking-wider w-[8%] border-r border-slate-200">Nama</th>
+                        <th className="px-4 py-3 text-center text-xs font-semibold text-slate-600 uppercase tracking-wider w-[8%] border-r border-slate-200">Rating</th>
+                        <th className="px-4 py-3 text-center text-xs font-semibold text-slate-600 uppercase tracking-wider w-[62%] border-r border-slate-200">Pesan</th>
+                        <th className="px-4 py-3 text-center text-xs font-semibold text-slate-600 uppercase tracking-wider w-[8%] border-r border-slate-200">Tanggal</th>
+                        {isAdminMode && <th className="px-4 py-3 text-center text-xs font-semibold text-slate-600 uppercase tracking-wider w-[2%] border-r border-slate-200">Aksi</th>}
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-slate-200">
+                      {review.map((item, index) => (
+                        <tr key={item.id} className="hover:bg-slate-50 transition-colors duration-150">
+                          <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-600 border-r border-slate-200 text-center">{index + 1}</td>
+                          <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-600 border-r border-slate-200 text-center">{sensorKataKotor(item.nama)}</td>
+                          <td className="px-4 py-3 whitespace-nowrap border-r border-slate-200 text-center">
+                            <div className="flex justify-center">
+                              {[...Array(5)].map((_, i) => (
+                                <svg
+                                  key={i}
+                                  className={`w-3 h-3 ${
+                                    i < item.rating ? 'text-yellow-400' : 'text-gray-300'
+                                  }`}
+                                  fill="currentColor"
+                                  viewBox="0 0 20 20"
+                                >
+                                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                </svg>
+                              ))}
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 border-r border-slate-200">
+                            {editingReview?.id === item.id ? (
+                              <div className="space-y-2">
+                                <textarea
+                                  value={editedKomentar}
+                                  onChange={(e) => setEditedKomentar(e.target.value)}
+                                  className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm"
+                                  rows={2}
+                                  placeholder="Tulis komentar..."
+                                />
+                                <div className="flex justify-center space-x-2">
+                                  <button
+                                    onClick={() => handleSaveEdit(item.id)}
+                                    className="bg-blue-900 text-white px-4 py-1.5 rounded-lg hover:bg-blue-800 transition-all duration-200 text-sm font-medium"
+                                  >
+                                    Simpan
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      setEditingReview(null);
+                                      setEditedKomentar('');
+                                    }}
+                                    className="bg-slate-200 text-slate-700 px-4 py-1.5 rounded-lg hover:bg-slate-300 transition-all duration-200 text-sm font-medium"
+                                  >
+                                    Batal
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="space-y-2">
+                                <div className="text-sm text-slate-600 text-center whitespace-pre-wrap max-h-24 overflow-y-auto">
+                                  {sensorKataKotor(item.komentar || 'Tidak ada pesan')}
+                                </div>
+                                {isAdminMode && (
+                                  <div className="flex justify-end">
+                                    <button
+                                      onClick={() => handleEditReview(item)}
+                                      className="text-blue-900 hover:text-blue-800 text-sm font-medium"
+                                    >
+                                      Edit
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-600 border-r border-slate-200 text-center">{new Date(item.created_at).toLocaleDateString()}</td>
+                          {isAdminMode && (
+                            <td className="px-4 py-3 whitespace-nowrap border-r border-slate-200 text-center">
+                              <button
+                                onClick={() => handleDeleteReview(item.id)}
+                                className="text-red-600 hover:text-red-800 text-sm font-medium"
+                              >
+                                Hapus
+                              </button>
+                            </td>
+                          )}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
           </div>
         </div>
-      )}
-    </main>
+      </div>
+    </div>
   );
 } 

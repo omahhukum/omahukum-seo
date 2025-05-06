@@ -1,0 +1,22 @@
+✅ Langkah 1: Build Project
+Buka Terminal/Command Prompt.
+
+Masuk ke direktori proyek:
+
+cd "C:\Users\ANTON M\omahhukum"
+Jalankan build untuk menghasilkan folder out:
+
+npm run build
+Lalu export:
+
+npm run export
+Ini akan menghasilkan folder out di dalam proyek, yang berisi versi statis dari websitemu.
+
+Pastikan next.config.js kamu sudah ada ini:
+
+js
+Copy
+Edit
+module.exports = {
+  output: 'export',
+}

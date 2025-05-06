@@ -1,0 +1,50 @@
+Dari isi folder tersebut, proyek kamu adalah Next.js (framework React untuk aplikasi web fullstack). Untuk menjalankannya, ikuti langkah-langkah berikut di Command Prompt (CMD atau Terminal):
+
+Cara Menjalankan Proyek Next.js (di Windows)
+Buka Command Prompt / Terminal
+
+Pindah ke folder proyek:
+
+cd "C:\Users\ANTON M\omah-hukum"
+Install dependensi (hanya perlu sekali, atau saat ada perubahan di package.json):
+
+npm install
+Jalankan server pengembangan:
+
+npm run dev
+Buka di browser:
+Setelah perintah di atas jalan, buka browser dan pergi ke:
+
+http://localhost:3000
+🔧 Catatan Tambahan
+Kalau kamu belum punya Node.js, download & install dari https://nodejs.org.
+
+Jika menggunakan yarn daripada npm, jalankan:
+
+yarn install
+yarn dev
+
+
+
+shortcut/script biar bisa dijalankan langsung tanpa ketik ulang perintah
+
+Berikut ini adalah dua cara untuk membuat shortcut/script agar kamu bisa menjalankan proyek Next.js kamu di folder C:\Users\ANTON M\omah-hukum hanya dengan klik dua kali:
+
+✅ Opsi 1: Buat File .bat (Windows Batch Script)
+Buka Notepad.
+
+Tempelkan kode ini:
+
+@echo off
+cd /d "C:\Users\ANTON M\omah-hukum"
+call npm run dev
+pause
+
+Simpan sebagai:
+jalankan-omah-hukum.bat
+(jangan lupa pilih "Save as type: All Files" saat menyimpan)
+
+Sekarang kamu bisa klik dua kali file itu untuk menjalankan proyek.
+
+
+

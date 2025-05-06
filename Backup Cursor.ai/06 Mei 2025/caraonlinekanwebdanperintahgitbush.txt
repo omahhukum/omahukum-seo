@@ -1,0 +1,65 @@
+pakai Git Bash
+
+masuk ke folder project dengan
+cd "/c/Users/ANTON M/omahhukum"
+
+✅ Jalankan server Next.js lokal:
+npm run dev
+
+Tunggu sampai muncul pesan seperti:
+Local: http://localhost:3000
+
+✅ Buka di browser
+Setelah itu, buka browser dan akses:
+
+http://localhost:3000
+
+
+
+
+
+✅ Langkah 1: Build Proyek
+Kamu harus membangun proyek agar bisa di-deploy ke Netlify:
+
+npm run build
+
+
+✅ Langkah 2: Jalankan Perintah Deploy Netlify
+Setelah build selesai, jalankan:
+
+netlify deploy
+
+
+Lalu:
+
+Pilih “Create & configure a new site”
+
+Pilih folder untuk deploy: .next tidak boleh, melainkan out (jika kamu pakai next export) atau custom build output
+
+Namun Next.js (tanpa export) butuh adaptasi untuk SSR di Netlify. Karena itu, metode yang lebih direkomendasikan:
+
+
+
+
+
+
+netlify login --auth <nfp_6szqDS19bF6CaGsU1umKWtTTujMdqzBdec81>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
