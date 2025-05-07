@@ -1,0 +1,89 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@keyframes neonPulse {
+  0% {
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.5),
+                0 0 10px rgba(255, 255, 255, 0.3),
+                0 0 15px rgba(255, 255, 255, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.8),
+                0 0 20px rgba(255, 255, 255, 0.5),
+                0 0 30px rgba(255, 255, 255, 0.3);
+  }
+  100% {
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.5),
+                0 0 10px rgba(255, 255, 255, 0.3),
+                0 0 15px rgba(255, 255, 255, 0.1);
+  }
+}
+
+@keyframes neonPulseBlue {
+  0% {
+    box-shadow: 0 0 5px rgba(59, 130, 246, 0.5),
+                0 0 10px rgba(59, 130, 246, 0.3),
+                0 0 15px rgba(59, 130, 246, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.8),
+                0 0 20px rgba(59, 130, 246, 0.5),
+                0 0 30px rgba(59, 130, 246, 0.3);
+  }
+  100% {
+    box-shadow: 0 0 5px rgba(59, 130, 246, 0.5),
+                0 0 10px rgba(59, 130, 246, 0.3),
+                0 0 15px rgba(59, 130, 246, 0.1);
+  }
+}
+
+@keyframes neonPulseGreen {
+  0% {
+    box-shadow: 0 0 5px rgba(34, 197, 94, 0.5),
+                0 0 10px rgba(34, 197, 94, 0.3),
+                0 0 15px rgba(34, 197, 94, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 10px rgba(34, 197, 94, 0.8),
+                0 0 20px rgba(34, 197, 94, 0.5),
+                0 0 30px rgba(34, 197, 94, 0.3);
+  }
+  100% {
+    box-shadow: 0 0 5px rgba(34, 197, 94, 0.5),
+                0 0 10px rgba(34, 197, 94, 0.3),
+                0 0 15px rgba(34, 197, 94, 0.1);
+  }
+}
+
+.neon-button {
+  animation: neonPulse 2s infinite;
+}
+
+.neon-button-blue {
+  animation: neonPulseBlue 2s infinite;
+}
+
+.neon-button-green {
+  animation: neonPulseGreen 2s infinite;
+}
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  --font-sans: 'Arial', 'Helvetica', sans-serif;
+  --font-mono: 'Courier New', monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
