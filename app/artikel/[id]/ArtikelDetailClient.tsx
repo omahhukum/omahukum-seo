@@ -5,44 +5,32 @@ import { supabase } from '../../../utils/supabaseClient';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-
-interface Artikel {
-  id: string;
-  judul: string;
-  penulis: string;
-  sumber: string;
-  isi: string;
-  gambar?: string;
-  created_at: string;
-}
+import type { Artikel } from '@/app/types/artikel';
 
 export default function ArtikelDetailClient({ article: initialArticle }: { article: Artikel }) {
   const router = useRouter();
+  const [article, setArticle] = useState<Artikel>(initialArticle);
   const [isAdmin, setIsAdmin] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [editingArticle, setEditingArticle] = useState<Artikel | null>(null);
   const [editLoading, setEditLoading] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState('');
-  const [article, setArticle] = useState<Artikel>(initialArticle);
 
   useEffect(() => {
     async function checkSession() {
       try {
         setCheckingAuth(true);
-        const isAdminLocal = localStorage.getItem('isAdmin') === 'true';
         const { data: { session } } = await supabase.auth.getSession();
         
-        if (session?.user?.email === 'omahhukum.jatim@gmail.com' && isAdminLocal) {
+        if (session?.user?.email === 'omahhukum.jatim@gmail.com') {
           setIsAdmin(true);
         } else {
           setIsAdmin(false);
-          localStorage.removeItem('isAdmin');
         }
       } catch (err) {
         console.error('Error checking session:', err);
         setIsAdmin(false);
-        localStorage.removeItem('isAdmin');
       } finally {
         setCheckingAuth(false);
       }

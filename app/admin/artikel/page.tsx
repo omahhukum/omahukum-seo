@@ -23,9 +23,8 @@ export default function AdminArtikel() {
     async function checkAccess() {
       // Hanya jalan di browser, bukan saat build
       if (typeof window !== 'undefined') {
-        const isAdmin = localStorage.getItem('isAdmin');
         const { data } = await supabase.auth.getSession();
-        if (!data.session || isAdmin !== '1') {
+        if (!data.session) {
           router.replace('/admin/login');
         } else {
           setChecking(false);

@@ -29,8 +29,6 @@ export default function Login() {
         setError('Email atau password salah.');
       } else {
         console.log('Login berhasil, data:', data);
-        // Simpan session di localStorage
-        localStorage.setItem('omah-hukum-auth', JSON.stringify(data.session));
         // Tunggu sebentar sebelum redirect untuk memastikan session tersimpan
         setTimeout(() => {
           router.push('/dashboard');

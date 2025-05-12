@@ -2,13 +2,14 @@ import { createClient } from '@supabase/supabase-js';
 import EditArtikelClient from './EditArtikelClient';
 
 interface Artikel {
-  id: number;
+  id: string; // UUID
   judul: string;
   penulis: string;
   sumber: string;
   isi: string;
   gambar: string;
   created_at: string;
+  updated_at: string;
 }
 
 // Fungsi ini akan dijalankan saat build time

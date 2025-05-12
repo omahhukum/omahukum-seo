@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '../../utils/supabaseClient';
+import Link from 'next/link';
 
 interface Konsultasi {
   id: number;
@@ -114,7 +115,9 @@ export default function KonsultasiSlider() {
                     <div className="p-6">
                       <div className="flex items-center justify-between mb-4">
                         <h3 className="text-xl font-semibold text-slate-900">
-                          {item.nama}
+                          <Link href={`/konsultasi/${item.id}`} className="hover:underline text-blue-700">
+                            {item.nama}
+                          </Link>
                         </h3>
                         <span className="text-sm text-slate-500">
                           {new Date(item.created_at).toLocaleDateString('id-ID', {
@@ -182,4 +185,4 @@ export default function KonsultasiSlider() {
       </div>
     </div>
   );
-} 
+}

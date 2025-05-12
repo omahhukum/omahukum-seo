@@ -9,6 +9,7 @@ interface Konsultasi {
   email: string;
   nomor_telepon: string;
   pesan: string;
+  balasan?: string;
   created_at: string;
 }
 
@@ -24,8 +25,6 @@ interface BukuTamu {
 interface Review {
   id: number;
   nama: string;
-  email: string;
-  nomor_telepon: string;
   rating: number;
   komentar: string;
   created_at: string;
@@ -58,28 +57,10 @@ const kataKotor = [
 const sensorKataKotor = (text: string) => {
   if (!text) return text;
   let result = text;
-  
-  // Fungsi untuk memeriksa apakah karakter adalah huruf
-  const isLetter = (char: string) => /[a-zA-Z]/.test(char);
-  
   kataKotor.forEach(kata => {
-    // Buat regex yang lebih fleksibel untuk mencari kata kotor
-    const regex = new RegExp(`[a-zA-Z]*${kata}[a-zA-Z]*`, 'gi');
-    
-    result = result.replace(regex, match => {
-      // Temukan posisi kata kotor dalam match
-      const kataIndex = match.toLowerCase().indexOf(kata.toLowerCase());
-      if (kataIndex === -1) return match;
-      
-      // Ganti hanya bagian kata kotor dengan bintang
-      const beforeKata = match.slice(0, kataIndex);
-      const afterKata = match.slice(kataIndex + kata.length);
-      const stars = '*'.repeat(kata.length);
-      
-      return beforeKata + stars + afterKata;
-    });
+    const regex = new RegExp(kata, 'gi');
+    result = result.replace(regex, '*'.repeat(kata.length));
   });
-  
   return result;
 };
 
@@ -112,7 +93,7 @@ export default function DashboardAuth() {
   const [loading, setLoading] = useState(true);
   const [konsultasi, setKonsultasi] = useState<Konsultasi[]>([]);
   const [bukuTamu, setBukuTamu] = useState<BukuTamu[]>([]);
-  const [review, setReview] = useState<Review[]>([]);
+  const [reviews, setReviews] = useState<Review[]>([]);
   const [activeTab, setActiveTab] = useState<'konsultasi' | 'bukuTamu' | 'review'>('konsultasi');
   const [editingReview, setEditingReview] = useState<Review | null>(null);
   const [editedKomentar, setEditedKomentar] = useState('');
@@ -164,7 +145,7 @@ export default function DashboardAuth() {
       const [konsultasiRes, bukuTamuRes, reviewRes] = await Promise.all([
         supabase.from('konsultasi').select('*').order('created_at', { ascending: false }),
         supabase.from('buku_tamu').select('*').order('created_at', { ascending: false }),
-        supabase.from('review').select('*').order('created_at', { ascending: false })
+        supabase.from('reviews').select('*').order('created_at', { ascending: false })
       ]);
 
       if (konsultasiRes.error) {
@@ -176,19 +157,19 @@ export default function DashboardAuth() {
         throw bukuTamuRes.error;
       }
       if (reviewRes.error) {
-        console.error('Error review:', reviewRes.error);
+        console.error('Error reviews:', reviewRes.error);
         throw reviewRes.error;
       }
 
       console.log('Data berhasil dimuat:', {
         konsultasi: konsultasiRes.data?.length,
         bukuTamu: bukuTamuRes.data?.length,
-        review: reviewRes.data?.length
+        reviews: reviewRes.data?.length
       });
 
       setKonsultasi(konsultasiRes.data || []);
       setBukuTamu(bukuTamuRes.data || []);
-      setReview(reviewRes.data || []);
+      setReviews(reviewRes.data || []);
     } catch (err) {
       console.error('Error fetching data:', err);
       setError('Terjadi kesalahan saat mengambil data.');
@@ -255,7 +236,7 @@ export default function DashboardAuth() {
       }
 
       const { data, error } = await supabase
-        .from('review')
+        .from('reviews')
         .update({ 
           komentar: editedKomentar,
           updated_at: new Date().toISOString()
@@ -271,7 +252,7 @@ export default function DashboardAuth() {
       console.log('Response dari Supabase:', data);
 
       // Update state lokal
-      setReview(prevReview => 
+      setReviews(prevReview => 
         prevReview.map(item => 
           item.id === reviewId ? { ...item, komentar: editedKomentar } : item
         )
@@ -299,7 +280,7 @@ export default function DashboardAuth() {
       }
 
       const { error } = await supabase
-        .from('review')
+        .from('reviews')
         .delete()
         .eq('id', reviewId);
 
@@ -317,49 +298,45 @@ export default function DashboardAuth() {
     const konsultasiItem = konsultasi.find(item => item.id === id);
     if (konsultasiItem) {
       setEditingBalasan(id.toString());
-      setEditedBalasan(konsultasiItem.pesan || '');
+      setEditedBalasan(konsultasiItem.balasan || '');
     }
   };
 
   const handleSaveBalasan = async (id: number) => {
     try {
-      console.log('Menyimpan balasan:', { id, balasan: editedBalasan });
-      
+      if (!isAdminMode) {
+        setError('Anda tidak memiliki akses untuk mengedit balasan');
+        return;
+      }
       if (!editedBalasan.trim()) {
         setError('Balasan tidak boleh kosong');
         return;
       }
-
       const { data, error } = await supabase
         .from('konsultasi')
         .update({ 
-          pesan: editedBalasan,
+          balasan: editedBalasan,
           updated_at: new Date().toISOString()
         })
-        .eq('id', id);
-
+        .eq('id', id)
+        .select();
       if (error) {
         console.error('Error saat menyimpan balasan:', error);
         throw error;
       }
-
-      // Update state lokal
       setKonsultasi(prevKonsultasi => 
         prevKonsultasi.map(item => 
-          item.id === id ? { ...item, pesan: editedBalasan } : item
+          item.id === id ? { ...item, balasan: editedBalasan } : item
         )
       );
-
       setEditingBalasan(null);
       setEditedBalasan('');
-      console.log('Balasan berhasil disimpan');
     } catch (err) {
-      console.error('Error updating balasan:', err);
       setError('Gagal menyimpan balasan. Silakan coba lagi.');
     }
   };
 
-  const handleDelete = async (table: 'konsultasi' | 'buku_tamu' | 'review', id: number) => {
+  const handleDelete = async (table: 'konsultasi' | 'buku_tamu' | 'reviews', id: number) => {
     if (!confirm('Apakah Anda yakin ingin menghapus data ini?')) return;
 
     try {
@@ -412,10 +389,10 @@ export default function DashboardAuth() {
               <div key={item.id} className="p-6 hover:bg-slate-50 transition-colors">
                 <div className="flex justify-between items-start">
                   <div className="space-y-2">
-                    <p className="text-slate-900 font-medium">{item.nama}</p>
+                    <p className="text-slate-900 font-medium">{isAdminMode ? item.nama : sensorKataKotor(item.nama)}</p>
                     <p className="text-slate-600 text-sm">{maskEmail(item.email)}</p>
                     <p className="text-slate-600 text-sm">{item.nomor_telepon}</p>
-                    <p className="text-slate-700 mt-2">{item.pesan}</p>
+                    <p className="text-slate-700 mt-2">{isAdminMode ? item.pesan : sensorKataKotor(item.pesan)}</p>
                   </div>
                   {isAdminMode && (
                     <div className="flex space-x-2">
@@ -451,10 +428,10 @@ export default function DashboardAuth() {
               <div key={item.id} className="p-6 hover:bg-slate-50 transition-colors">
                 <div className="flex justify-between items-start">
                   <div className="space-y-2">
-                    <p className="text-slate-900 font-medium">{item.nama}</p>
+                    <p className="text-slate-900 font-medium">{isAdminMode ? item.nama : sensorKataKotor(item.nama)}</p>
                     <p className="text-slate-600 text-sm">{maskEmail(item.email)}</p>
                     <p className="text-slate-600 text-sm">{item.nomor_telepon}</p>
-                    <p className="text-slate-700 mt-2">{item.pesan}</p>
+                    <p className="text-slate-700 mt-2">{isAdminMode ? item.pesan : sensorKataKotor(item.pesan)}</p>
                   </div>
                   {isAdminMode && (
                     <div className="flex space-x-2">
@@ -483,16 +460,14 @@ export default function DashboardAuth() {
         {/* Review Section */}
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
           <div className="px-6 py-4 border-b border-slate-200">
-            <h2 className="text-xl font-semibold text-slate-900">Review ({review.length})</h2>
+            <h2 className="text-xl font-semibold text-slate-900">Review ({reviews.length})</h2>
           </div>
           <div className="divide-y divide-slate-200">
-            {review.map((item) => (
+            {reviews.map((item) => (
               <div key={item.id} className="p-6 hover:bg-slate-50 transition-colors">
                 <div className="flex justify-between items-start">
                   <div className="space-y-2">
-                    <p className="text-slate-900 font-medium">{item.nama}</p>
-                    <p className="text-slate-600 text-sm">{maskEmail(item.email)}</p>
-                    <p className="text-slate-600 text-sm">{item.nomor_telepon}</p>
+                    <p className="text-slate-900 font-medium">{isAdminMode ? item.nama : sensorKataKotor(item.nama)}</p>
                     <div className="flex items-center space-x-1">
                       {[...Array(5)].map((_, i) => (
                         <svg
@@ -507,7 +482,7 @@ export default function DashboardAuth() {
                         </svg>
                       ))}
                     </div>
-                    <p className="text-slate-700 mt-2">{item.komentar}</p>
+                    <p className="text-slate-700 mt-2">{isAdminMode ? item.komentar : sensorKataKotor(item.komentar || 'Tidak ada pesan')}</p>
                   </div>
                   {isAdminMode && (
                     <div className="flex space-x-2">
@@ -544,6 +519,11 @@ export default function DashboardAuth() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100">
+      <div className="mb-4 text-center">
+        <span className={`px-4 py-2 rounded-lg font-semibold ${isAdminMode ? 'bg-blue-900 text-white' : 'bg-gray-200 text-gray-700'}`}>
+          Anda sedang dalam mode : {isAdminMode ? 'Admin' : 'User'}
+        </span>
+      </div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
           {/* Header Section */}
@@ -662,7 +642,7 @@ export default function DashboardAuth() {
                   }`}
                   onClick={() => setActiveTab('review')}
                 >
-                  Review ({review.length})
+                  Review ({reviews.length})
                 </button>
               </div>
             </div>
@@ -687,13 +667,13 @@ export default function DashboardAuth() {
                       {konsultasi.map((item, index) => (
                         <tr key={item.id} className="hover:bg-slate-50 transition-colors duration-150">
                           <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-600 border-r border-slate-200 text-center">{index + 1}</td>
-                          <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-600 border-r border-slate-200 text-center">{sensorKataKotor(item.nama)}</td>
+                          <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-600 border-r border-slate-200 text-center">{isAdminMode ? item.nama : sensorKataKotor(item.nama)}</td>
                           <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-600 border-r border-slate-200 text-center">
                             {isAdminMode ? item.email : sensorEmail(item.email)}
                           </td>
                           <td className="px-4 py-3 border-r border-slate-200">
                             <div className="text-sm text-slate-600 text-center whitespace-pre-wrap max-h-24 overflow-y-auto">
-                              {sensorKataKotor(item.pesan)}
+                              {isAdminMode ? item.pesan : sensorKataKotor(item.pesan)}
                             </div>
                           </td>
                           <td className="px-4 py-3 border-r border-slate-200">
@@ -727,7 +707,7 @@ export default function DashboardAuth() {
                             ) : (
                               <div className="space-y-2">
                                 <div className="text-sm text-slate-600 text-center whitespace-pre-wrap max-h-24 overflow-y-auto">
-                                  {sensorKataKotor(item.pesan || 'Belum ada balasan')}
+                                  {item.balasan ? (isAdminMode ? item.balasan : sensorKataKotor(item.balasan)) : 'Belum ada balasan'}
                                 </div>
                                 {isAdminMode && (
                                   <div className="text-center">
@@ -735,7 +715,7 @@ export default function DashboardAuth() {
                                       onClick={() => handleEditBalasan(item.id)}
                                       className="text-blue-900 hover:text-blue-800 text-sm font-medium"
                                     >
-                                      {item.pesan ? 'Edit' : 'Tambah'}
+                                      {item.balasan ? 'Edit' : 'Tambah'}
                                     </button>
                                   </div>
                                 )}
@@ -779,13 +759,13 @@ export default function DashboardAuth() {
                       {bukuTamu.map((item, index) => (
                         <tr key={item.id} className="hover:bg-slate-50 transition-colors duration-150">
                           <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-600 border-r border-slate-200 text-center">{index + 1}</td>
-                          <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-600 border-r border-slate-200 text-center">{sensorKataKotor(item.nama)}</td>
+                          <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-600 border-r border-slate-200 text-center">{isAdminMode ? item.nama : sensorKataKotor(item.nama)}</td>
                           <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-600 border-r border-slate-200 text-center">
                             {isAdminMode ? item.email : sensorEmail(item.email)}
                           </td>
                           <td className="px-4 py-3 border-r border-slate-200">
                             <div className="text-sm text-slate-600 text-center whitespace-pre-wrap max-h-24 overflow-y-auto">
-                              {sensorKataKotor(item.pesan)}
+                              {isAdminMode ? item.pesan : sensorKataKotor(item.pesan)}
                             </div>
                           </td>
                           <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-600 border-r border-slate-200 text-center">{new Date(item.created_at).toLocaleDateString()}</td>
@@ -822,10 +802,10 @@ export default function DashboardAuth() {
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-slate-200">
-                      {review.map((item, index) => (
+                      {reviews.map((item, index) => (
                         <tr key={item.id} className="hover:bg-slate-50 transition-colors duration-150">
                           <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-600 border-r border-slate-200 text-center">{index + 1}</td>
-                          <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-600 border-r border-slate-200 text-center">{sensorKataKotor(item.nama)}</td>
+                          <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-600 border-r border-slate-200 text-center">{isAdminMode ? item.nama : sensorKataKotor(item.nama)}</td>
                           <td className="px-4 py-3 whitespace-nowrap border-r border-slate-200 text-center">
                             <div className="flex justify-center">
                               {[...Array(5)].map((_, i) => (
@@ -873,7 +853,7 @@ export default function DashboardAuth() {
                             ) : (
                               <div className="space-y-2">
                                 <div className="text-sm text-slate-600 text-center whitespace-pre-wrap max-h-24 overflow-y-auto">
-                                  {sensorKataKotor(item.komentar || 'Tidak ada pesan')}
+                                  {isAdminMode ? item.komentar || 'Tidak ada pesan' : sensorKataKotor(item.komentar || 'Tidak ada pesan')}
                                 </div>
                                 {isAdminMode && (
                                   <div className="flex justify-end">

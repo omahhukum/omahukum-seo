@@ -2,6 +2,35 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../../utils/supabaseClient';
 
+const kataKotor = [
+  'anjing', 'bangsat', 'bajingan', 'kontol', 'memek', 'ngentot', 'pantek', 'pantat',
+  'pepek', 'puki', 'setan', 'sialan', 'sial', 'tolol', 'bego', 'goblok', 'babi',
+  'asu', 'bajing', 'jancok', 'jancuk', 'brengsek', 'kampret', 'tai', 'taik', 'peler',
+  'titit', 'kentot', 'kemem', 'ewe', 'ewek', 'kimak', 'lancap', 'bokep', 'bencong',
+  'banci', 'pelacur', 'lonte', 'cabul', 'bejat', 'ngesex', 'ngewe', 'sange', 'sangean',
+  'mesum', 'maho', 'homo', 'gay', 'lesbi', 'lesbian', 'porno', 'seks', 'seksual',
+  'zakar', 'penis', 'kelamin', 'kubul', 'coli', 'masturbasi', 'fuck', 'fucking',
+  'fucked', 'shit', 'bullshit', 'dick', 'pussy', 'cock', 'asshole', 'bastard', 'slut',
+  'whore', 'sundal', 'laknat', 'bangke', 'keparat', 'jebleh', 'ngaceng', 'tititmu',
+  'kontolmu', 'memekmu', 'pepekmu', 'bodoh', 'kamvret', 'pukimak', 'kntl', 'anjg',
+  'bgst', 'tae', 'taekk', 'kintil', 'memekk', 'jembot', 'jembut', 'mek sempit', 'meki',
+  'selakangan', 'selet', 'dubur', 'dobol', 'diamput', 'hancik dancik', 'mbokne hancuk',
+  'dancok', 'etel', 'itil', 'kimpet', 'kimvet', 'onani', 'ngocot', 'picek', 'matamu',
+  'mbokne han', 'bedes', 'garangan', 'sontoloyo', 'pejuh', 'peju', 'kancot', 'kutang',
+  'suwal', 'pentil', 'toket', 'tempek', 'ondolan', 'senok', 'germo', 'halet', 'nyen onyen',
+  'pokeh', 'palak', 'teles', 'cok', 'peli', 'kunam', 'bidak', 'iq jongkok', 'vagina', 'torok'
+];
+
+function sensorKataKotor(text: string) {
+  if (!text) return text;
+  let result = text;
+  kataKotor.forEach(kata => {
+    const regex = new RegExp(kata, 'gi');
+    result = result.replace(regex, '*'.repeat(kata.length));
+  });
+  return result;
+}
+
 export default function Konsultasi() {
   const [nama, setNama] = useState('');
   const [email, setEmail] = useState('');
@@ -11,6 +40,7 @@ export default function Konsultasi() {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
   const [konsultasi, setKonsultasi] = useState<any[]>([]);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,9 +109,24 @@ export default function Konsultasi() {
     fetchKonsultasi();
   }, []);
 
+  useEffect(() => {
+    async function checkSession() {
+      const { data: { session } } = await supabase.auth.getSession();
+      setIsAdmin(session?.user?.email === 'omahhukum.jatim@gmail.com');
+    }
+    checkSession();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setIsAdmin(session?.user?.email === 'omahhukum.jatim@gmail.com');
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100 py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="mb-4 text-center">
+          <span className={`px-4 py-2 rounded-lg font-semibold ${isAdmin ? 'bg-blue-900 text-white' : 'bg-gray-200 text-gray-700'}`}>Anda sedang dalam mode : {isAdmin ? 'Admin' : 'User'}</span>
+        </div>
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-slate-900 mb-4">Konsultasi Hukum</h1>
           <p className="text-lg text-slate-600 max-w-3xl mx-auto">
@@ -218,14 +263,14 @@ export default function Konsultasi() {
                   <div key={item.id} className="border-b border-slate-200 pb-4 last:border-0">
                     <div className="flex justify-between items-start">
                       <div>
-                        <h3 className="font-medium text-slate-900">{item.nama}</h3>
+                        <h3 className="font-medium text-slate-900">{isAdmin ? item.nama : sensorKataKotor(item.nama)}</h3>
                         <p className="text-sm text-slate-500">{item.topik}</p>
                       </div>
                       <span className="text-sm text-slate-500">
                         {new Date(item.created_at).toLocaleDateString()}
                       </span>
                     </div>
-                    <p className="mt-2 text-slate-600 line-clamp-2">{item.pesan}</p>
+                    <p className="mt-2 text-slate-600 line-clamp-2">{isAdmin ? item.pesan : sensorKataKotor(item.pesan)}</p>
                   </div>
                 ))}
               </div>

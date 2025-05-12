@@ -5,24 +5,15 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '../../../../utils/supabaseClient';
 import dynamic from 'next/dynamic';
 import 'react-quill/dist/quill.snow.css';
+import type { Artikel } from '@/app/types/artikel';
 
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
-
-interface Artikel {
-  id: number;
-  judul: string;
-  penulis: string;
-  sumber: string;
-  isi: string;
-  gambar: string;
-  created_at: string;
-}
 
 export default function EditArtikelClient({ id }: { id: string }) {
   const router = useRouter();
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [artikel, setArtikel] = useState<Artikel | null>(null);
+  const [article, setArticle] = useState<Artikel | null>(null);
   const [judul, setJudul] = useState('');
   const [penulis, setPenulis] = useState('');
   const [sumber, setSumber] = useState('');
@@ -30,7 +21,7 @@ export default function EditArtikelClient({ id }: { id: string }) {
   const [isi, setIsi] = useState('');
   const [gambar, setGambar] = useState<File | null>(null);
   const [gambarPreview, setGambarPreview] = useState<string>('');
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -64,7 +55,7 @@ export default function EditArtikelClient({ id }: { id: string }) {
 
         if (error) throw error;
 
-        setArtikel(data);
+        setArticle(data);
         setJudul(data.judul);
         setPenulis(data.penulis);
         setSumber(data.sumber);
@@ -90,7 +81,7 @@ export default function EditArtikelClient({ id }: { id: string }) {
     );
   }
 
-  if (!isAdmin || !artikel) {
+  if (!isAdmin || !article) {
     return null;
   }
 
@@ -105,7 +96,7 @@ export default function EditArtikelClient({ id }: { id: string }) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError(null);
+    setError('');
 
     try {
       let gambarUrl = gambarPreview;

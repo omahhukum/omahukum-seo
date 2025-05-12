@@ -3,9 +3,10 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { supabase } from '../../utils/supabaseClient';
 import Image from 'next/image';
+import type { Artikel } from '@/app/types/artikel';
 
 export default function Artikel() {
-  const [articles, setArticles] = useState<any[]>([]);
+  const [articles, setArticles] = useState<Artikel[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [isAdmin, setIsAdmin] = useState(false);
@@ -13,7 +14,7 @@ export default function Artikel() {
   const [search, setSearch] = useState('');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
-  const [editingArticle, setEditingArticle] = useState<any>(null);
+  const [editingArticle, setEditingArticle] = useState<Artikel | null>(null);
   const [editLoading, setEditLoading] = useState(false);
 
   // Ambil daftar penulis & kategori unik untuk filter
@@ -91,7 +92,6 @@ export default function Artikel() {
   async function handleLogout() {
     try {
       await supabase.auth.signOut();
-      localStorage.removeItem('isAdmin');
       setIsAdmin(false);
       window.location.reload();
     } catch (err) {
@@ -109,10 +109,10 @@ export default function Artikel() {
     const matchKeyword = a.judul.toLowerCase().includes(keyword) || a.isi.toLowerCase().includes(keyword);
     let matchDate = true;
     if (dateFrom) {
-      matchDate = matchDate && a.created_at && new Date(a.created_at) >= new Date(dateFrom);
+      matchDate = Boolean(matchDate && a.created_at && new Date(a.created_at) >= new Date(dateFrom));
     }
     if (dateTo) {
-      matchDate = matchDate && a.created_at && new Date(a.created_at) <= new Date(dateTo + 'T23:59:59');
+      matchDate = Boolean(matchDate && a.created_at && new Date(a.created_at) <= new Date(dateTo + 'T23:59:59'));
     }
     let matchPenulis = true;
     if (filterPenulis) {
@@ -136,7 +136,7 @@ export default function Artikel() {
     setPage(1);
   }, [search, dateFrom, dateTo, filterPenulis, filterKategori]);
 
-  async function handleEdit(article: any) {
+  async function handleEdit(article: Artikel) {
     setEditingArticle(article);
   }
 
@@ -205,6 +205,11 @@ export default function Artikel() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100">
+      <div className="mb-4 text-center">
+        <span className={`px-4 py-2 rounded-lg font-semibold ${isAdmin ? 'bg-blue-900 text-white' : 'bg-gray-200 text-gray-700'}`}>
+          Anda sedang dalam mode : {isAdmin ? 'Admin' : 'User'}
+        </span>
+      </div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-slate-900">Artikel</h1>

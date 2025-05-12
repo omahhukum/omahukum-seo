@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { supabase } from '../../utils/supabaseClient';
+import Link from 'next/link';
 
 interface Review {
   id: number;
@@ -25,20 +26,14 @@ export default function TestimonialSlider() {
   const fetchReviews = async () => {
     try {
       const { data, error } = await supabase
-        .from('review')
+        .from('reviews')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('Error fetching reviews:', error);
-        return;
-      }
-
-      if (data) {
-        setReviews(data);
-      }
-    } catch (error) {
-      console.error('Error:', error);
+      if (error) throw error;
+      setReviews(data || []);
+    } catch (err: any) {
+      console.error('Error fetching reviews:', err);
     } finally {
       setLoading(false);
     }
@@ -122,6 +117,7 @@ export default function TestimonialSlider() {
                             width={24}
                             height={24}
                             className="opacity-50 mt-1"
+                            style={{ objectFit: 'contain' }}
                             onError={() => setImageError(true)}
                           />
                         ) : (
@@ -144,6 +140,7 @@ export default function TestimonialSlider() {
                                   width={24}
                                   height={24}
                                   className="opacity-50 rotate-180 inline-block align-baseline ml-1"
+                                  style={{ objectFit: 'contain' }}
                                   onError={() => setImageError(true)}
                                 />
                               ) : (
@@ -173,7 +170,11 @@ export default function TestimonialSlider() {
                           </svg>
                         ))}
                       </div>
-                      <h4 className="text-lg font-semibold text-slate-900">{review.nama}</h4>
+                      <h4 className="text-lg font-semibold text-slate-900">
+                        <Link href={`/review/${review.id}`} className="hover:underline text-blue-700">
+                          {review.nama}
+                        </Link>
+                      </h4>
                       <p className="text-slate-600">
                         {new Date(review.created_at).toLocaleDateString('id-ID', {
                           year: 'numeric',
@@ -225,4 +226,4 @@ export default function TestimonialSlider() {
       </div>
     </div>
   );
-} 
+}

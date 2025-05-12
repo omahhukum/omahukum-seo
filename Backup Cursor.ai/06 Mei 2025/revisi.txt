@@ -1,2 +1,0 @@
-1. Dashboard Admin kolom pesan isinya tidak bisa disimpan setelah direfresh dan ini sama juga dengan di menu      Konsultasi kolom pesan isinya tidak bisa disimpan setelah direfresh 
-2. di menu Artikel , tambahkan tombol + atau tombol tambah artikel, dan hanya hak admin yng bisa tambah artikel
