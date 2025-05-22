@@ -61,7 +61,7 @@ export function generateMetadata({
       },
     },
     verification: {
-      google: 'google-site-verification=YOUR_VERIFICATION_CODE', // Anda perlu mengganti dengan kode dari Google Search Console
+      google: 'A1UV3EbB3nyRJoGRwDoTI7WXXue3pnnxGcD0-uRU4AU',
     },
     alternates: {
       canonical: 'https://omahhukum.com',
