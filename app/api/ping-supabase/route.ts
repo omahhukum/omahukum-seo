@@ -1,11 +1,20 @@
-import { NextResponse } from 'next/server';
-import { supabase } from '@/utils/supabaseClient';
+import { supabase } from '@/utils/supabaseClient'
+import { NextResponse } from 'next/server'
 
 export async function GET() {
-  // Query sederhana ke tabel buku_tamu
-  const { data, error } = await supabase.from('buku_tamu').select('id').limit(1);
-  if (error) {
-    return NextResponse.json({ success: false, error: error.message });
+  try {
+    // Simple query to keep the connection alive
+    const { data, error } = await supabase
+      .from('artikel')
+      .select('id')
+      .limit(1)
+
+    if (error) {
+      return NextResponse.json({ status: 'error', message: error.message }, { status: 500 })
+    }
+
+    return NextResponse.json({ status: 'success', message: 'Database pinged successfully' })
+  } catch (error) {
+    return NextResponse.json({ status: 'error', message: 'Failed to ping database' }, { status: 500 })
   }
-  return NextResponse.json({ success: true, ping: true, data });
 } 
