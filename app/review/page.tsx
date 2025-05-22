@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { supabase } from '../../utils/supabaseClient';
+import Footer from '../components/Footer'
 
 // Tambahkan fungsi sensor kata kotor di sini
 const kataKotor = [
@@ -116,7 +117,7 @@ export default function Review() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100 py-12">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100">
       <div className="mb-4 text-center">
         <span className={`px-4 py-2 rounded-lg font-semibold ${isAdmin ? 'bg-blue-900 text-white' : 'bg-gray-200 text-gray-700'}`}>
           Anda sedang dalam mode : {isAdmin ? 'Admin' : 'User'}
@@ -124,9 +125,9 @@ export default function Review() {
       </div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-slate-900 mb-4">Review & Testimoni</h1>
-          <p className="text-lg text-slate-600 max-w-3xl mx-auto">
-            Berikan penilaian dan pengalaman Anda menggunakan layanan Omah Hukum. 
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">Review & Testimoni</h1>
+          <p className="text-base text-gray-600 max-w-3xl mx-auto">
+            Berikan penilaian dan pengalaman Anda menggunakan layanan Omah Hukum.<br />
             Setiap review dari Anda sangat berarti bagi kami untuk meningkatkan kualitas layanan.
           </p>
         </div>
@@ -291,6 +292,7 @@ export default function Review() {
           <div className="text-center py-12 text-slate-500">Memuat data...</div>
         )}
       </div>
+      <Footer />
     </div>
   );
 }

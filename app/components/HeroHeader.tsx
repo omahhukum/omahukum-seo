@@ -29,7 +29,7 @@ export default function HeroHeader() {
           </div>
         </div>
         {/* Foto Chotim di kanan */}
-        <div className="flex-shrink-0 flex items-center justify-center" style={{ width: 180 }}>
+        {/* <div className="flex-shrink-0 flex items-center justify-center" style={{ width: 180 }}>
           <img
             src="/foto_chotim.png"
             alt="Khotim, SH, c.me"
@@ -38,7 +38,7 @@ export default function HeroHeader() {
             className="object-contain rounded-lg shadow-lg"
             style={{ background: 'rgba(255,255,255,0.0)' }}
           />
-        </div>
+        </div> */}
       </div>
     </div>
   )

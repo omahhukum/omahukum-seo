@@ -10,7 +10,7 @@ export default function ProfilSection() {
             <h2 className="text-3xl font-bold text-gray-800 mb-6">Profil</h2>
             <div className="space-y-4">
               <div className="flex items-center space-x-3">
-                <div className="w-56 h-56 relative rounded-full flex items-center justify-center overflow-hidden bg-white">
+                {/* <div className="w-56 h-56 relative rounded-full flex items-center justify-center overflow-hidden bg-white">
                   <img
                     src="/foto_chotim.png"
                     alt="Khotim, SH, c.me"
@@ -18,7 +18,7 @@ export default function ProfilSection() {
                     height={224}
                     className="rounded-full object-cover p-4 mix-blend-multiply opacity-90"
                   />
-                </div>
+                </div> */}
                 <div>
                   <h3 className="text-xl font-semibold text-gray-800">Khotim, SH, c.me</h3>
                   <p className="text-gray-600">Anggota Perhimpunan Advokat Indonesia (PERADI)</p>

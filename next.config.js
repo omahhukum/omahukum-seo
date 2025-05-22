@@ -38,6 +38,13 @@ const nextConfig = {
         tls: false,
       };
     }
+    // Menambahkan konfigurasi path alias
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@': '.',
+      '@/utils': './app/utils',
+      '@/components': './app/components'
+    };
     return config;
   },
 }

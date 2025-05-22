@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { supabase } from '../../utils/supabaseClient';
+import Footer from '../components/Footer'
 
 // Tambahkan fungsi sensorEmail
 const sensorEmail = (email: string) => {
@@ -131,7 +132,7 @@ export default function BukuTamu() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100 py-12">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100">
       <div className="mb-4 text-center">
         <span className={`px-4 py-2 rounded-lg font-semibold ${isAdmin ? 'bg-blue-900 text-white' : 'bg-gray-200 text-gray-700'}`}>
           Anda sedang dalam mode : {isAdmin ? 'Admin' : 'User'}
@@ -139,9 +140,9 @@ export default function BukuTamu() {
       </div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-slate-900 mb-4">Buku Tamu</h1>
-          <p className="text-lg text-slate-600 max-w-3xl mx-auto">
-            Berikan saran, kritik, atau pesan Anda untuk Omah Hukum. 
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">Buku Tamu</h1>
+          <p className="text-base text-gray-600 max-w-3xl mx-auto">
+            Berikan saran, kritik, atau pesan Anda untuk Omah Hukum.<br />
             Setiap masukan dari Anda sangat berarti bagi kami untuk meningkatkan kualitas layanan.
           </p>
         </div>
@@ -216,8 +217,7 @@ export default function BukuTamu() {
               </button>
             </form>
           </div>
-
-          {/* Informasi Tambahan */}
+          {/* Card Pesan Terbaru dan Kontak Kami */}
           <div className="space-y-8">
             <div className="bg-white rounded-2xl shadow-xl p-8 border border-slate-200">
               <h2 className="text-2xl font-semibold text-slate-900 mb-6">Pesan Terbaru</h2>
@@ -239,7 +239,6 @@ export default function BukuTamu() {
                 ))}
               </div>
             </div>
-
             <div className="bg-white rounded-2xl shadow-xl p-8 border border-slate-200">
               <h2 className="text-2xl font-semibold text-slate-900 mb-6">Kontak Kami</h2>
               <div className="space-y-4">
@@ -302,6 +301,7 @@ export default function BukuTamu() {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 } 

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '../../utils/supabaseClient';
+import Footer from '../components/Footer'
 
 interface Konsultasi {
   id: number;
@@ -889,6 +890,7 @@ export default function DashboardAuth() {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 } 

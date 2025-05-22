@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { supabase } from '../../utils/supabaseClient'
+import { supabase } from '../utils/supabaseClient'
 import Image from 'next/image'
 import Link from 'next/link'
 
@@ -85,6 +85,14 @@ export default function ArticleSlider() {
 
   return (
     <div className="relative">
+      {/* Judul dan Deskripsi */}
+      <div className="mb-8 text-center">
+        <h2 className="text-3xl font-bold text-blue-900 mb-2">Artikel Terbaru</h2>
+        <p className="text-slate-600 max-w-2xl mx-auto">
+          Temukan berbagai artikel hukum yang informatif dan bermanfaat<br />
+          untuk menambah wawasan hukum Anda
+        </p>
+      </div>
       {/* Slider Container */}
       <div className="overflow-hidden">
         <div

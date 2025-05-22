@@ -56,6 +56,36 @@
   }
 }
 
+@keyframes neonHeartbeat {
+  0%, 100% {
+    text-shadow:
+      0 0 8px #fff,
+      0 0 16px #00e0ff,
+      0 0 24px #00e0ff,
+      0 0 32px #ff00de,
+      0 0 40px #ff00de;
+    color: #fff;
+  }
+  10%, 30%, 50%, 70%, 90% {
+    text-shadow:
+      0 0 12px #fff,
+      0 0 24px #00e0ff,
+      0 0 36px #00e0ff,
+      0 0 48px #ff00de,
+      0 0 60px #ff00de;
+    color: #00e0ff;
+  }
+  20%, 40%, 60%, 80% {
+    text-shadow:
+      0 0 16px #fff,
+      0 0 32px #00ffae,
+      0 0 48px #00ffae,
+      0 0 64px #fffb00,
+      0 0 80px #fffb00;
+    color: #fffb00;
+  }
+}
+
 .neon-button {
   animation: neonPulse 2s infinite;
 }
@@ -66,6 +96,17 @@
 
 .neon-button-green {
   animation: neonPulseGreen 2s infinite;
+}
+
+.neon-heartbeat {
+  animation: neonHeartbeat 2s infinite;
+  font-weight: bold;
+  background: linear-gradient(90deg, #00e0ff, #ff00de, #fffb00, #00ffae, #00e0ff);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
 }
 
 :root {

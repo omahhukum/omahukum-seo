@@ -221,22 +221,22 @@ export default function EditArtikelClient({ id }: { id: string }) {
               <label className="block text-sm font-medium text-slate-700 mb-1">
                 Isi Artikel
               </label>
-              <div className="prose max-w-none">
-                <ReactQuill
-                  value={isi}
-                  onChange={handleContentChange}
-                  className="h-64 mb-12"
-                  modules={{
-                    toolbar: [
-                      [{ 'header': [1, 2, 3, false] }],
-                      ['bold', 'italic', 'underline', 'strike'],
-                      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                      ['link', 'image'],
-                      ['clean']
-                    ],
-                  }}
-                />
-              </div>
+              <ReactQuill
+                value={isi}
+                onChange={handleContentChange}
+                theme="snow"
+                className="bg-white"
+                modules={{
+                  toolbar: [
+                    [{ header: [1, 2, 3, false] }],
+                    ['bold', 'italic', 'underline', 'strike'],
+                    [{ list: 'ordered' }, { list: 'bullet' }],
+                    ['blockquote', 'code-block'],
+                    ['link', 'image'],
+                    ['clean']
+                  ]
+                }}
+              />
             </div>
 
             <div>

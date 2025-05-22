@@ -8,6 +8,26 @@ import 'react-quill/dist/quill.snow.css';
 
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 
+// Fungsi untuk menghapus semua tag HTML dan menjaga baris baru/paragraf
+function htmlToPlainText(html: string): string {
+  // Ganti <br> dan </p> dengan newline
+  let text = html
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/p>/gi, '\n')
+    .replace(/<p[^>]*>/gi, '');
+  // Hapus semua tag HTML lain
+  text = text.replace(/<[^>]+>/g, '');
+  // Decode karakter HTML
+  text = text.replace(/&nbsp;/g, ' ')
+             .replace(/&amp;/g, '&')
+             .replace(/&lt;/g, '<')
+             .replace(/&gt;/g, '>')
+             .replace(/&quot;/g, '"')
+             .replace(/&#39;/g, "'");
+  // Rapikan whitespace
+  return text.replace(/\n{2,}/g, '\n\n').trim();
+}
+
 export default function TambahArtikel() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -45,6 +65,9 @@ export default function TambahArtikel() {
         gambarUrl = publicUrl;
       }
 
+      // Bersihkan semua tag HTML sebelum simpan
+      const plainIsi = htmlToPlainText(formData.isi);
+
       // Simpan artikel
       const { error: insertError } = await supabase
         .from('artikel')
@@ -53,7 +76,7 @@ export default function TambahArtikel() {
             judul: formData.judul,
             penulis: formData.penulis,
             sumber: formData.sumber,
-            isi: formData.isi,
+            isi: plainIsi,
             gambar: gambarUrl,
           },
         ]);
@@ -74,7 +97,7 @@ export default function TambahArtikel() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100 py-12">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white rounded-2xl shadow-xl p-6">
-          <h1 className="text-3xl font-bold text-slate-900 mb-8">Tambah Artikel Baru</h1>
+          <h1 className="text-3xl font-bold text-slate-900 text-center mb-8">Tambah Artikel Baru</h1>
 
           {error && (
             <div className="mb-6 bg-red-50 text-red-600 p-4 rounded-lg border border-red-200">

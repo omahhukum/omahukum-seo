@@ -305,12 +305,15 @@ export default function ArtikelDetailClient({ article: initialArticle }: { artic
               {article.judul}
             </h1>
 
-            <div className="prose prose-lg max-w-none text-slate-600">
-              {article.isi.split('\n').map((paragraph: string, index: number) => (
-                <p key={index} className="mb-4">
-                  {paragraph}
-                </p>
-              ))}
+            <div className="prose prose-lg max-w-none text-slate-600 text-justify">
+              {article.isi
+                .replace(/^<p>/, '')
+                .replace(/<\/p>$/, '')
+                .split(/<p>|<\/p>/)
+                .filter(Boolean)
+                .map((paragraph: string, index: number) => (
+                  <p key={index} className="mb-4 text-justify">{paragraph.trim()}</p>
+                ))}
             </div>
 
             {!checkingAuth && isAdmin && (
