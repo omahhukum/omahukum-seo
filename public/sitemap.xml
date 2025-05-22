@@ -1,26 +1,98 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://omahhukum-jatim.vercel.app/</loc>
-    <lastmod>2024-03-20</lastmod>
+    <loc>https://omahhukum-jatim.vercel.app</loc>
+    <lastmod>2025-05-22T16:25:53.544Z</lastmod>
     <changefreq>daily</changefreq>
-    <priority>1.0</priority>
+    <priority>1</priority>
   </url>
   <url>
     <loc>https://omahhukum-jatim.vercel.app/artikel</loc>
-    <lastmod>2024-03-20</lastmod>
+    <lastmod>2025-05-22T16:25:53.544Z</lastmod>
     <changefreq>daily</changefreq>
-    <priority>0.8</priority>
+    <priority>0.9</priority>
   </url>
   <url>
     <loc>https://omahhukum-jatim.vercel.app/konsultasi</loc>
-    <lastmod>2024-03-20</lastmod>
+    <lastmod>2025-05-22T16:25:53.544Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://omahhukum-jatim.vercel.app/buku-tamu</loc>
-    <lastmod>2024-03-20</lastmod>
+    <loc>https://omahhukum-jatim.vercel.app/mediasi</loc>
+    <lastmod>2025-05-22T16:25:53.544Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://omahhukum-jatim.vercel.app/artikel/17b73e90-e102-4fba-ae83-9b95db065534</loc>
+    <lastmod>2025-05-22T02:14:32.042Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://omahhukum-jatim.vercel.app/artikel/67760fe6-0e2a-403c-b33d-7cdb5bfe64e2</loc>
+    <lastmod>2025-05-14T06:39:55.010Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://omahhukum-jatim.vercel.app/artikel/b67e2050-5db1-4700-9521-71c8bd53afae</loc>
+    <lastmod>2025-05-14T06:33:09.938Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://omahhukum-jatim.vercel.app/artikel/93aa2867-3bbd-48bb-8bf3-b4fd46bfcb0d</loc>
+    <lastmod>2025-05-13T01:04:10.710Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://omahhukum-jatim.vercel.app/artikel/3533c288-5a31-4f0e-bb9a-67021d948d0a</loc>
+    <lastmod>2025-05-07T09:16:55.702Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://omahhukum-jatim.vercel.app/artikel/7d84fbef-9b36-4510-bbe8-c2cd13ac3792</loc>
+    <lastmod>2025-05-06T15:45:14.485Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://omahhukum-jatim.vercel.app/artikel/affabfbb-9f93-4571-aab6-1a8c74037580</loc>
+    <lastmod>2025-05-06T15:34:51.845Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://omahhukum-jatim.vercel.app/artikel/09173a4e-3ee1-4fdb-815f-5e54b823b027</loc>
+    <lastmod>2025-05-06T12:20:50.159Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://omahhukum-jatim.vercel.app/artikel/762c86c7-e930-4030-b0bf-aecfea9f50e9</loc>
+    <lastmod>2025-05-06T06:46:56.170Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://omahhukum-jatim.vercel.app/artikel/a5f5e5d4-146f-4e3a-9ab8-cbe8deb21289</loc>
+    <lastmod>2025-05-06T05:44:25.469Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://omahhukum-jatim.vercel.app/artikel/c8be7005-4489-47e2-bb68-841a9da6302b</loc>
+    <lastmod>2025-05-06T02:41:51.309Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://omahhukum-jatim.vercel.app/artikel/63c85b7f-50a2-4abf-b485-f27066b26214</loc>
+    <lastmod>2025-05-03T04:25:29.601Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
