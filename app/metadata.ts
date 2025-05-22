@@ -61,7 +61,7 @@ export function generateMetadata({
       },
     },
     verification: {
-      google: 'A1UV3EbB3nyRJoGRwDoTI7WXXue3pnnxGcD0-uRU4AU',
+      google: 'cXODJnu2xYwOxIngkVFceEOLR_vj_CzTDOnp3UhRTVc',
     },
     alternates: {
       canonical: 'https://omahhukum.com',
