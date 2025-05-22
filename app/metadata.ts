@@ -1,7 +1,7 @@
 import { Metadata } from 'next'
 import { seoKeywords } from './config/seo-keywords'
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://omahhukum.com'
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://omahhukum-jatim.vercel.app'
 
 export function generateMetadata({
   title,
@@ -64,7 +64,7 @@ export function generateMetadata({
       google: 'cXODJnu2xYwOxIngkVFceEOLR_vj_CzTDOnp3UhRTVc',
     },
     alternates: {
-      canonical: 'https://omahhukum.com',
+      canonical: 'https://omahhukum-jatim.vercel.app',
     },
   }
 } 
