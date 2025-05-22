@@ -1,6 +1,8 @@
 import { Metadata } from 'next'
 import { seoKeywords } from './config/seo-keywords'
 
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://omahhukum.com'
+
 export function generateMetadata({
   title,
   description,
@@ -23,6 +25,7 @@ export function generateMetadata({
   const defaultOgImage = '/logo_omah_hukum.png'
 
   return {
+    metadataBase: new URL(BASE_URL),
     title: title ? `${title} | Omah Hukum Mojokerto` : defaultTitle,
     description: description || defaultDescription,
     keywords: keywords || defaultKeywords,

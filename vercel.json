@@ -1,15 +1,5 @@
 {
-  "version": 2,
-  "buildCommand": "next build",
-  "devCommand": "next dev",
-  "installCommand": "npm install",
   "framework": "nextjs",
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/next"
-    }
-  ],
   "env": {
     "NEXT_PUBLIC_SUPABASE_URL": "https://cdjsurtesgzdgcznzniy.supabase.co",
     "NEXT_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkanN1cnRlc2d6ZGdjem56bml5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDYxOTQyNTUsImV4cCI6MjA2MTc3MDI1NX0.FoOprWEnJwWVBdOcNdR42-aNDJtv5-9LgRUaLqKdDSY"
