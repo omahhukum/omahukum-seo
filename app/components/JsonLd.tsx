@@ -18,7 +18,7 @@ export default function JsonLd() {
       "latitude": "-7.5200",
       "longitude": "112.5500"
     },
-    "url": "https://omahhukum.com",
+    "url": "https://omahhukum-jatim.vercel.app",
     "telephone": "+6281225425169",
     "email": "omahhukum.jatim@gmail.com",
     "priceRange": "$$",

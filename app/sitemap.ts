@@ -9,7 +9,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .order('created_at', { ascending: false })
 
   // Base URL
-  const baseUrl = 'https://omahhukum.com'
+  const baseUrl = 'https://omahhukum-jatim.vercel.app'
 
   // Static routes
   const staticRoutes = [
