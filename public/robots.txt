@@ -1,22 +1,9 @@
-# Allow all crawlers
-User-agent: *
+# Robots.txt for Omah Hukum
+User-Agent: *
 Allow: /
-
-# Sitemap location
-Sitemap: https://omahhukum-jatim.vercel.app/sitemap.xml
-
-# Disallow admin and private routes
-Disallow: /admin/
-Disallow: /private/
 Disallow: /api/
+Disallow: /dashboard/
+Disallow: /admin/
 
-# Disallow auth pages
-Disallow: /login/
-Disallow: /register/
-Disallow: /forgot-password/
-
-# Allow public pages
-Allow: /konsultasi/
-Allow: /mediasi/
-Allow: /dokumen/
-Allow: /buku-tamu/ 
+Host: https://omahhukum-jatim.vercel.app
+Sitemap: https://omahhukum-jatim.vercel.app/sitemap.xml 
