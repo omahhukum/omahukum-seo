@@ -11,7 +11,7 @@ const nextConfig = {
     domains: ['cdnjs.cloudflare.com'],
   },
   // Menambahkan trailingSlash untuk Netlify
-  trailingSlash: true,
+  trailingSlash: false,
   // Konfigurasi untuk menangani masalah middleware
   experimental: {
     serverComponentsExternalPackages: ['@supabase/auth-helpers-nextjs'],
