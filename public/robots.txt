@@ -3,15 +3,12 @@ User-agent: *
 Allow: /
 
 # Sitemap location
-Sitemap: https://omahhukum.com/sitemap.xml
+Sitemap: https://omahhukum-jatim.vercel.app/sitemap.xml
 
 # Disallow admin and private routes
 Disallow: /admin/
 Disallow: /private/
 Disallow: /api/
-
-# Crawl-delay
-Crawl-delay: 10
 
 # Disallow auth pages
 Disallow: /login/
